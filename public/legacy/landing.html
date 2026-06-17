@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bon Desti Access - Control de accesos para barrios</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    :root {
+      --bg: #07182c;
+      --ink: #f8fafc;
+      --muted: #9fb2ca;
+      --line: rgba(255,255,255,.12);
+      --panel: rgba(9, 31, 56, .84);
+      --green: #10b981;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --blue: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: #061526;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      min-width: 320px;
+    }
+    a { color: inherit; text-decoration: none; }
+    .nav {
+      align-items: center;
+      display: flex;
+      gap: 18px;
+      justify-content: space-between;
+      left: 0;
+      padding: 18px clamp(18px, 4vw, 56px);
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 20;
+    }
+    .brand {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+    .brand i {
+      align-items: center;
+      background: rgba(16,185,129,.18);
+      border: 1px solid rgba(16,185,129,.36);
+      border-radius: 10px;
+      color: #b7f7da;
+      display: inline-flex;
+      font-size: 24px;
+      height: 42px;
+      justify-content: center;
+      width: 42px;
+    }
+    .nav-actions { display: flex; gap: 10px; }
+    .btn {
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 10px;
+      display: inline-flex;
+      font-weight: 850;
+      gap: 8px;
+      justify-content: center;
+      min-height: 44px;
+      padding: 11px 16px;
+      transition: .18s;
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: #fff;
+      color: #061526;
+    }
+    .btn-dark {
+      background: rgba(7,24,44,.66);
+      color: #fff;
+    }
+    .hero {
+      min-height: 92vh;
+      overflow: hidden;
+      padding: 116px clamp(18px, 4vw, 56px) 54px;
+      position: relative;
+    }
+    .hero::before {
+      background:
+        linear-gradient(90deg, rgba(6,21,38,.98) 0%, rgba(6,21,38,.84) 40%, rgba(6,21,38,.34) 100%),
+        url("https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1800&q=80");
+      background-position: center;
+      background-size: cover;
+      content: "";
+      inset: 0;
+      position: absolute;
+      z-index: 0;
+    }
+    .hero-content {
+      max-width: 720px;
+      position: relative;
+      z-index: 2;
+    }
+    .eyebrow {
+      align-items: center;
+      color: #c6f6e4;
+      display: inline-flex;
+      font-size: 13px;
+      font-weight: 850;
+      gap: 8px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(42px, 7vw, 84px);
+      letter-spacing: 0;
+      line-height: .94;
+      margin: 0 0 22px;
+      max-width: 680px;
+    }
+    .lead {
+      color: #d7e3f1;
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.42;
+      margin: 0 0 28px;
+      max-width: 650px;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 34px;
+    }
+    .hero-stats {
+      border-top: 1px solid rgba(255,255,255,.18);
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 640px;
+      padding-top: 22px;
+    }
+    .hero-stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+    .hero-stat span {
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+    .app-preview {
+      bottom: 42px;
+      display: grid;
+      gap: 12px;
+      position: absolute;
+      right: clamp(18px, 5vw, 72px);
+      width: min(430px, 36vw);
+      z-index: 3;
+    }
+    .preview-panel {
+      backdrop-filter: blur(16px);
+      background: rgba(7,24,44,.78);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 16px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      padding: 16px;
+    }
+    .preview-top {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .preview-title { font-weight: 900; }
+    .live {
+      align-items: center;
+      color: #bbf7d0;
+      display: inline-flex;
+      font-size: 12px;
+      gap: 6px;
+      font-weight: 850;
+    }
+    .live::before {
+      background: var(--green);
+      border-radius: 999px;
+      content: "";
+      height: 8px;
+      width: 8px;
+    }
+    .preview-row {
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,.1);
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 36px 1fr auto;
+      padding: 12px 0;
+    }
+    .preview-row:first-of-type { border-top: 0; }
+    .preview-row i {
+      align-items: center;
+      border-radius: 10px;
+      display: inline-flex;
+      height: 36px;
+      justify-content: center;
+      width: 36px;
+    }
+    .preview-row.entry i { background: rgba(16,185,129,.16); color: #86efac; }
+    .preview-row.qr i { background: rgba(56,189,248,.15); color: #7dd3fc; }
+    .preview-row.alert i { background: rgba(239,68,68,.16); color: #fca5a5; }
+    .preview-row strong { display: block; font-size: 14px; }
+    .preview-row span { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
+    .tag {
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 6px 8px;
+    }
+    .tag.ok { background: rgba(16,185,129,.16); color: #bbf7d0; }
+    .tag.warn { background: rgba(245,158,11,.18); color: #fde68a; }
+    .tag.danger { background: rgba(239,68,68,.18); color: #fecaca; }
+    section {
+      padding: 76px clamp(18px, 4vw, 56px);
+    }
+    .section-head {
+      margin: 0 auto 32px;
+      max-width: 820px;
+      text-align: center;
+    }
+    .section-head h2 {
+      font-size: clamp(32px, 4vw, 52px);
+      letter-spacing: 0;
+      line-height: 1.02;
+      margin: 0 0 14px;
+    }
+    .section-head p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .features {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .feature {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+    .feature i {
+      align-items: center;
+      background: rgba(56,189,248,.12);
+      border-radius: 10px;
+      color: #7dd3fc;
+      display: inline-flex;
+      font-size: 28px;
+      height: 48px;
+      justify-content: center;
+      margin-bottom: 18px;
+      width: 48px;
+    }
+    .feature h3 {
+      font-size: 20px;
+      margin: 0 0 10px;
+    }
+    .feature p {
+      color: var(--muted);
+      line-height: 1.52;
+      margin: 0;
+    }
+    .flow {
+      background: #f8fafc;
+      color: #102033;
+    }
+    .flow .section-head p { color: #64748b; }
+    .steps {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .step {
+      border-left: 4px solid #10b981;
+      padding: 8px 14px;
+    }
+    .step strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .step span {
+      color: #64748b;
+      line-height: 1.45;
+    }
+    .benefits {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr 1fr;
+    }
+    .benefit-large {
+      background: rgba(16,185,129,.12);
+      border: 1px solid rgba(16,185,129,.28);
+      border-radius: 8px;
+      padding: 28px;
+    }
+    .benefit-large h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.04;
+      margin: 0 0 16px;
+    }
+    .benefit-large p {
+      color: #cbd8e6;
+      font-size: 18px;
+      line-height: 1.55;
+      margin: 0;
+    }
+    .benefit-list {
+      display: grid;
+      gap: 12px;
+    }
+    .benefit-item {
+      align-items: flex-start;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+    }
+    .benefit-item i { color: #86efac; font-size: 24px; margin-top: 1px; }
+    .benefit-item strong { display: block; margin-bottom: 4px; }
+    .benefit-item span { color: var(--muted); line-height: 1.42; }
+    .cta {
+      background: linear-gradient(135deg, #0f2a47, #0b1d33);
+      text-align: center;
+    }
+    .cta h2 {
+      font-size: clamp(34px, 4vw, 58px);
+      line-height: 1.02;
+      margin: 0 auto 16px;
+      max-width: 820px;
+    }
+    .cta p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+      margin: 0 auto 26px;
+      max-width: 680px;
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px clamp(18px, 4vw, 56px);
+    }
+    @media (max-width: 980px) {
+      .hero { min-height: auto; padding-bottom: 34px; }
+      .app-preview {
+        margin-top: 34px;
+        position: relative;
+        right: auto;
+        width: 100%;
+      }
+      .features, .steps, .benefits { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .nav { position: absolute; }
+      .nav-actions .btn-dark { display: none; }
+      .hero-stats, .features, .steps, .benefits { grid-template-columns: 1fr; }
+      .hero-actions .btn { width: 100%; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#inicio"><i class="ti ti-shield-check"></i><span>Bon Desti Access</span></a>
+    <div class="nav-actions">
+      <a class="btn btn-dark" href="#funciones">Funciones</a>
+      <a class="btn btn-primary" href="barrio_accesos.html"><i class="ti ti-login"></i> Entrar a la app</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="inicio">
+    <div class="hero-content">
+      <div class="eyebrow"><i class="ti ti-circle-check"></i> Control de ingresos, seguridad y comunicación</div>
+      <h1>Bon Desti Access</h1>
+      <p class="lead">Una aplicación para ordenar la administración, la seguridad y la comunicación con residentes: registra movimientos, verifica QR de visitas, centraliza mensajes y facilita la gestión diaria del barrio.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="barrio_accesos.html"><i class="ti ti-rocket"></i> Probar la aplicación</a>
+        <a class="btn btn-dark" href="#beneficios"><i class="ti ti-list-check"></i> Ver beneficios</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>24/7</strong><span>Registro disponible para la guardia.</span></div>
+        <div class="hero-stat"><strong>QR</strong><span>Pases temporales verificables.</span></div>
+        <div class="hero-stat"><strong>1 panel</strong><span>Accesos, residentes y mensajes.</span></div>
+      </div>
+    </div>
+
+    <div class="app-preview" aria-label="Vista previa de la aplicación">
+      <div class="preview-panel">
+        <div class="preview-top">
+          <div class="preview-title">Gestión en tiempo real</div>
+          <div class="live">Activo</div>
+        </div>
+        <div class="preview-row entry">
+          <i class="ti ti-login-2"></i>
+          <div><strong>Ingreso registrado</strong><span>Residente seleccionado desde listado</span></div>
+          <div class="tag ok">OK</div>
+        </div>
+        <div class="preview-row qr">
+          <i class="ti ti-qrcode"></i>
+          <div><strong>QR verificado</strong><span>Pase temporal vigente</span></div>
+          <div class="tag warn">QR</div>
+        </div>
+        <div class="preview-row alert">
+          <i class="ti ti-alert-triangle"></i>
+          <div><strong>Emergencia enviada</strong><span>Aviso visible para seguridad</span></div>
+          <div class="tag danger">Alta</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="funciones">
+    <div class="section-head">
+      <h2>Administración, seguridad y residentes en una sola pantalla</h2>
+      <p>La aplicación reduce planillas dispersas, mensajes perdidos y dudas al momento de autorizar un ingreso.</p>
+    </div>
+    <div class="features">
+      <article class="feature">
+        <i class="ti ti-barrier-block"></i>
+        <h3>Registro de ingresos</h3>
+        <p>Carga entradas de residentes, visitas, proveedores y vehículos con hora, lote, patente, observaciones y guardia responsable.</p>
+      </article>
+      <article class="feature">
+        <i class="ti ti-car"></i>
+        <h3>Salida desde el ingreso</h3>
+        <p>Cuando un vehículo está dentro, la guardia puede registrar su salida desde el mismo historial con un solo botón.</p>
+      </article>
+      <article class="feature">
+        <i class="ti ti-qrcode"></i>
+        <h3>Verificación por QR</h3>
+        <p>Los residentes generan pases temporales y seguridad los valida con cámara o código antes de permitir el acceso.</p>
+      </article>
+      <article class="feature">
+        <i class="ti ti-users"></i>
+        <h3>Listado de habitantes</h3>
+        <p>Al ingresar un residente, la guardia puede seleccionarlo desde una lista ordenada alfabéticamente para evitar errores de tipeo.</p>
+      </article>
+      <article class="feature">
+        <i class="ti ti-message-2"></i>
+        <h3>Buzón de mensajes</h3>
+        <p>Los reclamos, avisos y consultas de residentes quedan visibles para garita o administración según el destino elegido.</p>
+      </article>
+      <article class="feature">
+        <i class="ti ti-alert-triangle"></i>
+        <h3>Emergencias visibles</h3>
+        <p>El aviso de emergencia se muestra con prioridad para que seguridad pueda actuar rápido y dejar registro.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="flow">
+    <div class="section-head">
+      <h2>Cómo te facilita el trabajo diario</h2>
+      <p>Menos pasos manuales, más control y mejor trazabilidad para el barrio.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><strong>1. Identifica</strong><span>Selecciona residente, visita o proveedor desde formularios claros.</span></div>
+      <div class="step"><strong>2. Verifica</strong><span>Consulta datos del lote, patente, pase QR o estado del residente.</span></div>
+      <div class="step"><strong>3. Registra</strong><span>Guarda cada entrada o salida con fecha, hora y responsable.</span></div>
+      <div class="step"><strong>4. Consulta</strong><span>Revisa historial, mensajes, emergencias y movimientos desde el panel.</span></div>
+    </div>
+  </section>
+
+  <section id="beneficios">
+    <div class="benefits">
+      <div class="benefit-large">
+        <h2>Más orden para seguridad, administración y residentes.</h2>
+        <p>Bon Desti Access convierte la operación diaria del barrio en un sistema simple: menos papeles, menos llamadas repetidas y más información disponible cuando hace falta.</p>
+      </div>
+      <div class="benefit-list">
+        <div class="benefit-item"><i class="ti ti-check"></i><div><strong>Evita mensajes perdidos</strong><span>El buzón separa garita y administración para responder desde el lugar correcto.</span></div></div>
+        <div class="benefit-item"><i class="ti ti-check"></i><div><strong>Reduce errores de carga</strong><span>La selección de habitantes por listado ordenado ayuda a registrar más rápido y con menos confusión.</span></div></div>
+        <div class="benefit-item"><i class="ti ti-check"></i><div><strong>Mejora la trazabilidad</strong><span>Cada movimiento queda guardado con datos de persona, vehículo, fecha y observación.</span></div></div>
+        <div class="benefit-item"><i class="ti ti-check"></i><div><strong>Agiliza visitas autorizadas</strong><span>Los pases QR permiten validar permisos sin depender de capturas o mensajes sueltos.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Una comunicación más rápida, clara y controlada.</h2>
+    <p>Ingresá a la aplicación y probá el panel principal, el registro de accesos, los pases QR, el buzón de mensajes y las herramientas de gestión.</p>
+    <a class="btn btn-primary" href="barrio_accesos.html"><i class="ti ti-login-2"></i> Abrir Bon Desti Access</a>
+  </section>
+
+  <footer>
+    <strong>Bon Desti Access</strong>
+    <span>Landing promocional de la aplicación de control de accesos.</span>
+  </footer>
+</body>
+</html>
