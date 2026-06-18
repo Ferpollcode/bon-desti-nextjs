@@ -32,7 +32,7 @@ export default function Sidebar({ rol, nombre, pathname }: SidebarProps) {
         left: 0,
         position: "fixed",
         top: 0,
-        width: 220,
+        width: 240,
         zIndex: 100,
       }}
     >

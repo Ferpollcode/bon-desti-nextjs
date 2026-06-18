@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="/legacy/assets/vendor/tabler-icons/tabler-icons.min.css" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('gd_theme')==='dark')document.documentElement.classList.add('dark')}catch{}`,
+            __html: `try{if(localStorage.getItem('gd_theme')==='light')document.documentElement.dataset.theme='light'}catch{}`,
           }}
         />
       </head>

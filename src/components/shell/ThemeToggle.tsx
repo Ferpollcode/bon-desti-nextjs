@@ -3,36 +3,41 @@
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
+    const saved = localStorage.getItem("gd_theme");
+    const current = saved === "light" ? "light" : "dark";
+    setTheme(current);
+    if (current === "light") {
+      document.documentElement.dataset.theme = "light";
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
   }, []);
 
   function toggle() {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("gd_theme", next ? "dark" : "light");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    if (next === "light") {
+      document.documentElement.dataset.theme = "light";
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
+    localStorage.setItem("gd_theme", next);
   }
 
   return (
     <button
       type="button"
+      className="btn theme-toggle"
+      data-active-theme={theme}
       onClick={toggle}
-      title={dark ? "Tema claro" : "Tema oscuro"}
-      style={{
-        background: "none",
-        border: "1px solid var(--border2)",
-        borderRadius: "var(--radius-sm)",
-        color: "var(--text2)",
-        cursor: "pointer",
-        fontSize: 14,
-        lineHeight: 1,
-        padding: "5px 8px",
-      }}
+      title={theme === "light" ? "Modo oscuro" : "Modo claro"}
+      aria-label={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
     >
-      <i className={`ti ${dark ? "ti-sun" : "ti-moon"}`} />
+      <span className="theme-sun"><i className="ti ti-sun" /></span>
+      <span className="theme-moon"><i className="ti ti-moon" /></span>
     </button>
   );
 }

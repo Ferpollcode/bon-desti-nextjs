@@ -18,7 +18,7 @@ export default function AppShell({ rol, nombre, children }: AppShellProps) {
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
       <Sidebar rol={rol} nombre={nombre} pathname={pathname} />
       <main className="app-main">
-        <div style={{ margin: "0 auto", maxWidth: 1100 }}>
+        <div style={{ margin: "0 auto", maxWidth: 1280 }}>
           {children}
         </div>
       </main>
