@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getNavItems } from "@/lib/nav";
+import { getNavItems, isNavActive } from "@/lib/nav";
 import { logout } from "@/app/(auth)/login/actions";
 import ThemeToggle from "./ThemeToggle";
 import type { Rol } from "@/lib/types/database";
@@ -70,8 +70,7 @@ export default function Sidebar({ rol, nombre, pathname }: SidebarProps) {
       {/* Nav items */}
       <nav style={{ flex: 1, padding: "8px 0" }}>
         {items.map((item) => {
-          const active =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = isNavActive(item.href, pathname);
           return (
             <Link
               key={item.href}

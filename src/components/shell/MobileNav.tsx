@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getMobileNavItems } from "@/lib/nav";
+import { getMobileNavItems, isNavActive } from "@/lib/nav";
 import type { Rol } from "@/lib/types/database";
 
 interface MobileNavProps {
@@ -27,8 +27,7 @@ export default function MobileNav({ rol, pathname }: MobileNavProps) {
     >
       <div style={{ display: "flex", height: 58 }}>
         {items.map((item) => {
-          const active =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = isNavActive(item.href, pathname);
           return (
             <Link
               key={item.href}

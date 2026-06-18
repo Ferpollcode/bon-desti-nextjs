@@ -52,3 +52,7 @@ export function getNavItems(rol: Rol): NavItem[] {
 export function getMobileNavItems(rol: Rol): NavItem[] {
   return getNavItems(rol).slice(0, 5);
 }
+
+export function isNavActive(href: string, pathname: string): boolean {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
