@@ -60,6 +60,7 @@
   .nav-icon { font-size: 16px; opacity: 0.8; }
   .nav-section { padding: 12px 16px 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); font-weight: 600; }
   .sidebar-footer { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); }
+  .mobile-quickbar { display: none; }
   
   /* Page header */
   .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -818,6 +819,9 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 0 0 20px;
   }
+  .mobile-gate-actions {
+    display: none;
+  }
   .qr-scan-cta {
     align-items: center;
     background: linear-gradient(135deg, #f59e0b, #ef4444);
@@ -1175,7 +1179,7 @@
     .main {
       margin-left: 0;
       max-width: none;
-      padding: 16px max(12px, env(safe-area-inset-right)) 24px max(12px, env(safe-area-inset-left));
+      padding: 16px max(12px, env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
       width: 100%;
     }
     .page-header {
@@ -1655,6 +1659,75 @@
     .owner-visit-btn {
       min-height: 50px;
     }
+    .mobile-quickbar {
+      background: rgba(7, 17, 31, 0.94);
+      border-top: 1px solid rgba(118, 247, 194, 0.22);
+      bottom: 0;
+      box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.32);
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      left: 0;
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      position: fixed;
+      right: 0;
+      z-index: 180;
+    }
+    .mobile-quickbar-btn {
+      align-items: center;
+      background: linear-gradient(180deg, rgba(22, 43, 70, 0.96), rgba(12, 29, 51, 0.96));
+      border: 1px solid rgba(118, 247, 194, 0.24);
+      border-radius: 12px;
+      color: #e8f1ff;
+      cursor: pointer;
+      display: grid;
+      font: inherit;
+      gap: 3px;
+      justify-items: center;
+      min-height: 58px;
+      min-width: 0;
+      padding: 7px 4px;
+      text-align: center;
+    }
+    .mobile-quickbar-btn i {
+      color: #76f7c2;
+      font-size: 21px;
+      line-height: 1;
+    }
+    .mobile-quickbar-btn span {
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+    .mobile-quickbar-btn.danger {
+      background: linear-gradient(135deg, #991b1b, #ef4444);
+      border-color: rgba(255, 180, 180, 0.34);
+      color: #ffffff;
+    }
+    .mobile-quickbar-btn.danger i {
+      color: #ffffff;
+    }
+    .mobile-gate-actions {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 14px;
+      padding: 12px;
+    }
+    .mobile-gate-actions .main-action {
+      min-height: 112px;
+      padding: 16px 10px;
+    }
+    .mobile-gate-actions .main-action i {
+      display: block;
+      font-size: 30px;
+    }
+    .mobile-gate-actions .main-action > span {
+      font-size: clamp(18px, 5.5vw, 25px);
+      line-height: 1.08;
+      white-space: normal;
+    }
   }
   @media (max-width: 520px) {
     .login-screen {
@@ -1709,6 +1782,145 @@
     .searchbar .btn {
       justify-content: center;
       width: 100%;
+    }
+    .modal-overlay {
+      padding: 0;
+    }
+    .modal {
+      border-radius: 16px 16px 0 0;
+      max-height: 96svh;
+    }
+    .modal-footer {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .modal-footer .btn {
+      width: 100%;
+    }
+  }
+
+  /* Responsive hardening */
+  img,
+  canvas,
+  video {
+    max-width: 100%;
+  }
+  .page,
+  .card,
+  .stat,
+  .modal,
+  .access-info,
+  .access-name,
+  .access-detail {
+    min-width: 0;
+  }
+  .access-name,
+  .access-detail,
+  td,
+  th {
+    overflow-wrap: anywhere;
+  }
+  td[style*="display:flex"],
+  td[style*="display: flex"] {
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: max-content;
+  }
+  .table-wrap {
+    max-width: 100%;
+  }
+  .pass-qr-card canvas {
+    height: min(220px, calc(100vw - 64px));
+    width: min(220px, calc(100vw - 64px));
+  }
+  @media (max-width: 900px) {
+    html,
+    body {
+      max-width: 100%;
+    }
+    .section-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      width: 100%;
+    }
+    .section-actions .btn,
+    .searchbar .btn {
+      justify-content: center;
+      width: 100%;
+    }
+    .page-header > div:first-child {
+      width: 100%;
+    }
+    .card {
+      overflow: hidden;
+    }
+    .resident-message-header,
+    .emergency-row,
+    .owner-status-line {
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .access-entry {
+      gap: 10px;
+    }
+    .access-time {
+      white-space: normal;
+      text-align: right;
+    }
+  }
+  @media (max-width: 520px) {
+    .main {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .card,
+    .stat {
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .btn {
+      white-space: normal;
+    }
+    .access-entry {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .access-time {
+      grid-column: 2;
+      text-align: left;
+    }
+    .table-wrap {
+      margin-left: -4px;
+      margin-right: -4px;
+    }
+    table {
+      min-width: 620px;
+    }
+    th,
+    td {
+      padding: 9px 8px;
+    }
+    .login-brand {
+      font-size: clamp(30px, 11vw, 42px);
+    }
+    #page-principal .main-action > span,
+    #modal-ingreso-tipo .main-action span {
+      font-size: clamp(26px, 8vw, 34px);
+    }
+    .mobile-quickbar {
+      gap: 6px;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .mobile-quickbar-btn {
+      border-radius: 10px;
+      min-height: 56px;
+    }
+    .mobile-gate-actions {
+      grid-template-columns: 1fr;
+    }
+    .mobile-gate-actions .main-action {
+      min-height: 92px;
     }
   }
 </style>
@@ -1938,7 +2150,7 @@
   <aside class="sidebar">
     <div class="sidebar-logo">
       <img class="sidebar-logo-img" src="assets/bon-desti-logo.png" alt="Bon Desti - Complejo Residencial">
-      <p>Pueyrredon 633, Rodeo del Medio - Maipú - Mendoza</p>
+      <p>Pueyrredon 633, Rodeo del Medio - Maipú Mendoza</p>
     </div>
     <nav class="nav">
       <div class="nav-section">Principal</div>
@@ -1967,6 +2179,25 @@
       <button class="btn btn-sm logout-btn" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
     </div>
   </aside>
+
+  <div class="mobile-quickbar" aria-label="Accesos rápidos de garita">
+    <button class="mobile-quickbar-btn danger" type="button" onclick="enviarEmergenciaGarita()">
+      <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+      <span>Emergencia</span>
+    </button>
+    <button class="mobile-quickbar-btn" type="button" onclick="abrirEscaneoQrIngreso()">
+      <i class="ti ti-qrcode" aria-hidden="true"></i>
+      <span>QR</span>
+    </button>
+    <button class="mobile-quickbar-btn" type="button" onclick="abrirIngresoTipo()">
+      <i class="ti ti-login-2" aria-hidden="true"></i>
+      <span>Ingreso</span>
+    </button>
+    <button class="mobile-quickbar-btn" type="button" onclick="buscarResidenteRapido()">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <span>Buscar</span>
+    </button>
+  </div>
 
   <!-- Main -->
   <main class="main">
@@ -2304,7 +2535,7 @@
       </div>
       <div class="card">
         <div class="searchbar">
-          <input type="text" placeholder="Buscar residente o lote..." id="search-residentes" oninput="renderResidentes()">
+          <input type="search" placeholder="Buscar residente, lote, DNI o teléfono..." id="search-residentes" autocomplete="off" inputmode="search" oninput="renderResidentes()">
         </div>
         <div class="table-wrap">
           <table>
@@ -2405,6 +2636,24 @@
         </div>
       </div>
       <div id="emergency-alerts"></div>
+      <div class="card mobile-gate-actions">
+        <button class="main-action emergency" type="button" onclick="enviarEmergenciaGarita()">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <span>EMERGENCIA</span>
+        </button>
+        <button class="main-action qr" type="button" onclick="abrirEscaneoQrIngreso()">
+          <i class="ti ti-qrcode" aria-hidden="true"></i>
+          <span>ESCANEAR QR</span>
+        </button>
+        <button class="main-action entry" type="button" onclick="abrirIngresoTipo()">
+          <i class="ti ti-login-2" aria-hidden="true"></i>
+          <span>INGRESO</span>
+        </button>
+        <button class="main-action system" type="button" onclick="buscarResidenteRapido()">
+          <i class="ti ti-search" aria-hidden="true"></i>
+          <span>BUSCAR RESIDENTE</span>
+        </button>
+      </div>
       <div class="card">
         <div class="card-title">Emergencias</div>
         <div class="form-row">
@@ -3358,6 +3607,14 @@ function enviarEmergenciaPropietario() {
   };
   emergencias.unshift(emergencia);
   DB.set('emergencias', emergencias);
+  registrarAuditoria(
+    'crear_emergencia_propietario',
+    'emergencias',
+    emergencia.id,
+    {resumen: resumenEntidadAuditoria('emergencias', emergencia)},
+    null,
+    emergencia
+  );
   abrirWhatsappEmergencia(emergencia);
   window.dispatchEvent(new Event('bonDestiEmergencia'));
   renderPortalPropietario();
@@ -4050,6 +4307,14 @@ function eliminarPaseFinalizado(id) {
   }
   if(!confirm('¿Eliminar este pase finalizado?')) return;
   DB.set('pases', DB.get('pases').filter(p => p.id !== id));
+  registrarAuditoria(
+    'eliminar_registro',
+    'pases',
+    id,
+    {entidadLabel: 'pase', resumen: [pass.nombre, pass.dni, pass.loteLabel].filter(Boolean).join(' | ')},
+    pass,
+    null
+  );
   renderPasesViews();
 }
 
@@ -4067,7 +4332,17 @@ function eliminarPasesSeleccionados(containerId) {
   const eliminables = new Set(DB.get('pases').filter(p => ids.includes(p.id) && pasePuedeEliminarse(p)).map(p => p.id));
   if(!eliminables.size) { alert('No hay pases seleccionados que puedan eliminarse.'); return; }
   if(!confirm(`¿Eliminar ${eliminables.size} pase${eliminables.size === 1 ? '' : 's'} finalizado${eliminables.size === 1 ? '' : 's'}?`)) return;
-  DB.set('pases', DB.get('pases').filter(p => !eliminables.has(p.id)));
+  const pasesPrevios = DB.get('pases');
+  const eliminados = pasesPrevios.filter(p => eliminables.has(p.id));
+  DB.set('pases', pasesPrevios.filter(p => !eliminables.has(p.id)));
+  registrarAuditoria(
+    'eliminar_registros',
+    'pases',
+    '',
+    {entidadLabel: 'pase', cantidad: eliminados.length, ids: eliminados.map(p => p.id)},
+    eliminados,
+    null
+  );
   renderPasesViews();
 }
 
@@ -4080,6 +4355,82 @@ const DB = {
   },
   id: () => Date.now().toString(36) + Math.random().toString(36).slice(2,5)
 };
+
+const AUDIT_LABELS = {
+  accesos: 'acceso',
+  emergencias: 'emergencia',
+  lotes: 'lote',
+  residentes: 'residente',
+  importaciones: 'importacion'
+};
+
+function actorAuditoria() {
+  const role = localStorage.getItem('gd_auth_role') || 'sin_sesion';
+  const activo = typeof getTurnoActivo === 'function' ? getTurnoActivo() : null;
+  if(role === 'administradora') return {role, nombre: 'Administradora'};
+  if(role === 'residentes') {
+    const loteId = localStorage.getItem('gd_owner_lote') || '';
+    const lote = DB.get('lotes').find(l => l.id === loteId);
+    return {
+      role,
+      nombre: lote ? loteLabel(lote) : 'Residente',
+      loteId
+    };
+  }
+  if(role === 'seguridad' && activo) {
+    return {
+      role,
+      nombre: activo.guardiaNombre || 'Guardia',
+      guardiaId: activo.guardiaId || '',
+      turnoId: activo.id || ''
+    };
+  }
+  if(role === 'seguridad') return {role, nombre: 'Seguridad'};
+  return {role, nombre: 'Sin sesion'};
+}
+
+function resumenEntidadAuditoria(key, item) {
+  if(!item) return '';
+  if(key === 'accesos') return [item.movimiento, item.tipo, item.nombre, item.dni, item.patente].filter(Boolean).join(' | ');
+  if(key === 'emergencias') return [item.estado, item.loteLabel || item.origen, item.propietario, item.guardiaNombre].filter(Boolean).join(' | ');
+  if(key === 'lotes') return loteLabel(item);
+  if(key === 'residentes') {
+    const lote = DB.get('lotes').find(l => l.id === item.loteId);
+    return [item.nombre, item.dni, lote ? loteLabel(lote) : ''].filter(Boolean).join(' | ');
+  }
+  return [item.nombre, item.numero, item.id].filter(Boolean).join(' | ');
+}
+
+function cambiosAuditoria(previo, actual, campos) {
+  if(!previo || !actual) return [];
+  return campos
+    .filter(campo => String(previo[campo] ?? '') !== String(actual[campo] ?? ''))
+    .map(campo => ({
+      campo,
+      antes: previo[campo] ?? '',
+      despues: actual[campo] ?? ''
+    }));
+}
+
+function registrarAuditoria(accion, entidad, entidadId, detalle = {}, previo = null, actual = null) {
+  try {
+    const logs = DB.get('auditoria');
+    logs.unshift({
+      id: DB.id(),
+      ts: new Date().toISOString(),
+      accion,
+      entidad,
+      entidadId: entidadId || '',
+      actor: actorAuditoria(),
+      detalle,
+      previo,
+      actual
+    });
+    DB.set('auditoria', logs.slice(0, 1000));
+  } catch(e) {
+    console.warn('No se pudo registrar auditoria', e);
+  }
+}
 
 function scheduleDashboardUpdate() {
   setTimeout(() => {
@@ -4106,6 +4457,7 @@ function showPage(id) {
   if(id==='obras') renderObras();
   if(id==='seguridad') renderSeguridad();
   placeThemeToggle();
+  document.querySelector('.main')?.scrollIntoView({block: 'start'});
 }
 
 // ===================== THEME =====================
@@ -4159,7 +4511,18 @@ function abrirEscaneoQrIngreso() {
   showSecurityTab('pases');
   const panel = document.getElementById('security-tab-pases');
   if(panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('pase-scan-input')?.focus(), 120);
   iniciarEscaneoPase();
+}
+
+function buscarResidenteRapido() {
+  showPage('residentes');
+  setTimeout(() => {
+    const input = document.getElementById('search-residentes');
+    if(!input) return;
+    input.scrollIntoView({behavior: 'smooth', block: 'center'});
+    input.focus();
+  }, 80);
 }
 
 function renderPrincipal() {
@@ -4323,6 +4686,8 @@ function seleccionarResidenteAcceso() {
 function guardarAcceso() {
   const editId = document.getElementById('acc-edit-id').value;
   const turnoActivo = getTurnoActivo();
+  const accesos = DB.get('accesos');
+  const previo = editId ? accesos.find(a => a.id === editId) : null;
   const acc = {
     id: editId || DB.id(),
     tipo: document.getElementById('acc-tipo').value,
@@ -4341,7 +4706,6 @@ function guardarAcceso() {
     guardiaNombre: turnoActivo ? turnoActivo.guardiaNombre : ''
   };
   if(!acc.nombre) { showAlert('alert-acceso','El nombre es requerido','error'); return; }
-  const accesos = DB.get('accesos');
   if(editId) {
     const i = accesos.findIndex(a => a.id === editId);
     if(i > -1) accesos[i] = acc;
@@ -4349,6 +4713,14 @@ function guardarAcceso() {
     accesos.unshift(acc);
   }
   DB.set('accesos', accesos);
+  registrarAuditoria(
+    editId ? 'actualizar_acceso' : 'crear_ingreso',
+    'accesos',
+    acc.id,
+    {resumen: resumenEntidadAuditoria('accesos', acc), cambios: cambiosAuditoria(previo, acc, ['tipo','movimiento','dni','nombre','loteId','modoIngreso','patente','marca','color','hora','obs'])},
+    previo,
+    acc
+  );
   limpiarAccesoForm();
   closeModal('modal-acceso');
   renderDashboard();
@@ -4476,6 +4848,14 @@ function darSalidaVehiculo(id) {
   };
   accesos.unshift(salida);
   DB.set('accesos', accesos);
+  registrarAuditoria(
+    'crear_salida',
+    'accesos',
+    salida.id,
+    {resumen: resumenEntidadAuditoria('accesos', salida), origenAccesoId: entrada.id},
+    entrada,
+    salida
+  );
   renderDashboard();
   renderAccesos();
   if(document.body.classList.contains('is-owner')) renderPortalPropietario();
@@ -4531,6 +4911,8 @@ function renderAccesos() {
 // ===================== LOTES =====================
 function guardarLote() {
   const editId = document.getElementById('lote-edit-id').value;
+  let lotes = DB.get('lotes');
+  const previo = editId ? lotes.find(l=>l.id===editId) : null;
   const lote = {
     id: editId || DB.id(),
     numero: document.getElementById('lote-numero').value.trim(),
@@ -4543,10 +4925,17 @@ function guardarLote() {
     obs: document.getElementById('lote-obs').value.trim()
   };
   if(!lote.numero) { alert('El número de lote es requerido'); return; }
-  let lotes = DB.get('lotes');
   if(editId) { const idx=lotes.findIndex(l=>l.id===editId); if(idx>-1) lotes[idx]=lote; }
   else lotes.push(lote);
   DB.set('lotes', lotes);
+  registrarAuditoria(
+    editId ? 'actualizar_lote' : 'crear_lote',
+    'lotes',
+    lote.id,
+    {resumen: resumenEntidadAuditoria('lotes', lote), cambios: cambiosAuditoria(previo, lote, ['numero','manzana','propietario','dni','tel','email','estado','obs'])},
+    previo,
+    lote
+  );
   document.getElementById('lote-edit-id').value = '';
   ['lote-numero','lote-manzana','lote-propietario','lote-dni','lote-tel','lote-email','lote-obs'].forEach(i=>document.getElementById(i).value='');
   closeModal('modal-lote');
@@ -4782,9 +5171,18 @@ function regenerarQrResidente(id) {
   const residentes = DB.get('residentes');
   const residente = residentes.find(r => r.id === id);
   if(!residente) return;
+  const previo = {...residente};
   residente.qrToken = crearTokenQrResidente();
   asegurarQrResidente(residente);
   DB.set('residentes', residentes);
+  registrarAuditoria(
+    'actualizar_residente_qr',
+    'residentes',
+    residente.id,
+    {resumen: resumenEntidadAuditoria('residentes', residente), cambios: cambiosAuditoria(previo, residente, ['qrToken','qrCodigo'])},
+    previo,
+    residente
+  );
   renderResidentes();
   renderPropietariosResidentes();
   if(document.body.classList.contains('is-owner')) renderQrsResidentesPropietario();
@@ -4792,7 +5190,9 @@ function regenerarQrResidente(id) {
 
 function guardarResidente() {
   const editId = document.getElementById('res-edit-id').value;
-  const existente = editId ? DB.get('residentes').find(r => r.id === editId) : null;
+  let arr = DB.get('residentes');
+  const existente = editId ? arr.find(r => r.id === editId) : null;
+  const previo = existente ? {...existente} : null;
   const res = {
     id: editId || DB.id(),
     nombre: document.getElementById('res-nombre').value.trim(),
@@ -4805,10 +5205,17 @@ function guardarResidente() {
   };
   asegurarQrResidente(res);
   if(!res.nombre) { alert('El nombre es requerido'); return; }
-  let arr = DB.get('residentes');
   if(editId){ const i=arr.findIndex(r=>r.id===editId); if(i>-1) arr[i]=res; }
   else arr.push(res);
   DB.set('residentes',arr);
+  registrarAuditoria(
+    editId ? 'actualizar_residente' : 'crear_residente',
+    'residentes',
+    res.id,
+    {resumen: resumenEntidadAuditoria('residentes', res), cambios: cambiosAuditoria(previo, res, ['nombre','dni','loteId','relacion','tel','acceso'])},
+    previo,
+    res
+  );
   document.getElementById('res-edit-id').value='';
   ['res-nombre','res-dni','res-tel'].forEach(i=>document.getElementById(i).value='');
   closeModal('modal-residente');
@@ -5424,6 +5831,16 @@ async function importarExcelPropietarios() {
     DB.set('lotes', lotes);
     DB.set('residentes', residentes);
     DB.set('vehiculos', vehiculos);
+    registrarAuditoria(
+      'importar_excel',
+      'importaciones',
+      file.name,
+      {
+        archivo: file.name,
+        modo: mode,
+        resumen
+      }
+    );
     renderLotes();
     renderPropietariosResidentes();
     renderPropietariosVehiculos();
@@ -5910,6 +6327,14 @@ function eliminarMensajeResuelto(id) {
   }
   if(!confirm('¿Eliminar este mensaje resuelto?')) return;
   DB.set('buzon', DB.get('buzon').filter(m => m.id !== id));
+  registrarAuditoria(
+    'eliminar_registro',
+    'buzon',
+    id,
+    {entidadLabel: 'mensaje', resumen: [item.asunto, item.loteLabel, item.propietario].filter(Boolean).join(' | ')},
+    item,
+    null
+  );
   renderBuzonViews();
 }
 
@@ -5927,7 +6352,17 @@ function eliminarMensajesSeleccionados(containerId) {
   const eliminables = new Set(DB.get('buzon').filter(m => ids.includes(m.id) && m.estado === 'resuelto').map(m => m.id));
   if(!eliminables.size) { alert('No hay mensajes seleccionados que puedan eliminarse.'); return; }
   if(!confirm(`¿Eliminar ${eliminables.size} mensaje${eliminables.size === 1 ? '' : 's'} resuelto${eliminables.size === 1 ? '' : 's'}?`)) return;
-  DB.set('buzon', DB.get('buzon').filter(m => !eliminables.has(m.id)));
+  const mensajesPrevios = DB.get('buzon');
+  const eliminados = mensajesPrevios.filter(m => eliminables.has(m.id));
+  DB.set('buzon', mensajesPrevios.filter(m => !eliminables.has(m.id)));
+  registrarAuditoria(
+    'eliminar_registros',
+    'buzon',
+    '',
+    {entidadLabel: 'mensaje', cantidad: eliminados.length, ids: eliminados.map(m => m.id)},
+    eliminados,
+    null
+  );
   renderBuzonViews();
 }
 
@@ -6071,7 +6506,7 @@ function registrarAccesoResidenteQr(id, movimiento) {
   }) || (vehiculos.length === 1 ? vehiculos[0] : null);
   const turnoActivo = getTurnoActivo();
   const accesos = DB.get('accesos');
-  accesos.unshift({
+  const acceso = {
     id: DB.id(),
     tipo: 'residente',
     movimiento: movimiento === 'salida' ? 'salida' : 'entrada',
@@ -6089,8 +6524,17 @@ function registrarAccesoResidenteQr(id, movimiento) {
     qrResidente: true,
     guardiaId: turnoActivo ? turnoActivo.guardiaId : '',
     guardiaNombre: turnoActivo ? turnoActivo.guardiaNombre : ''
-  });
+  };
+  accesos.unshift(acceso);
   DB.set('accesos', accesos);
+  registrarAuditoria(
+    movimiento === 'salida' ? 'crear_salida_qr_residente' : 'crear_ingreso_qr_residente',
+    'accesos',
+    acceso.id,
+    {resumen: resumenEntidadAuditoria('accesos', acceso), residenteId: residente.id},
+    null,
+    acceso
+  );
   alert(`${movimiento === 'salida' ? 'Salida' : 'Ingreso'} registrado para ${residente.nombre}.`);
   renderPasesGarita();
   renderAccesos();
@@ -6103,7 +6547,7 @@ function registrarIngresoPase(id) {
   if(!result.ok) { alert(result.motivo); validarPaseDesdeGarita(pass?.codigo || ''); return; }
   const turnoActivo = getTurnoActivo();
   const accesos = DB.get('accesos');
-  accesos.unshift({
+  const acceso = {
     id: DB.id(),
     tipo: 'visita',
     movimiento: 'entrada',
@@ -6120,7 +6564,8 @@ function registrarIngresoPase(id) {
     paseId: pass.id,
     guardiaId: turnoActivo ? turnoActivo.guardiaId : '',
     guardiaNombre: turnoActivo ? turnoActivo.guardiaNombre : ''
-  });
+  };
+  accesos.unshift(acceso);
   DB.set('accesos', accesos);
   const pases = DB.get('pases');
   const editable = pases.find(p => p.id === id);
@@ -6129,6 +6574,14 @@ function registrarIngresoPase(id) {
     editable.usos = (editable.usos || 0) + 1;
     DB.set('pases', pases);
   }
+  registrarAuditoria(
+    'crear_ingreso_qr_pase',
+    'accesos',
+    acceso.id,
+    {resumen: resumenEntidadAuditoria('accesos', acceso), paseId: pass.id},
+    null,
+    acceso
+  );
   alert('Ingreso registrado para ' + pass.nombre + '.');
   renderPasesGarita();
   renderAccesos();
@@ -6283,6 +6736,14 @@ function enviarEmergenciaGarita() {
   };
   emergencias.unshift(emergencia);
   DB.set('emergencias', emergencias);
+  registrarAuditoria(
+    'crear_emergencia_garita',
+    'emergencias',
+    emergencia.id,
+    {resumen: resumenEntidadAuditoria('emergencias', emergencia)},
+    null,
+    emergencia
+  );
   const whatsappOk = abrirWhatsappEmergencia(emergencia);
   window.dispatchEvent(new Event('bonDestiEmergencia'));
   renderSeguridad();
@@ -6362,11 +6823,20 @@ function atenderEmergencia(id) {
   const emergencias = DB.get('emergencias');
   const emergencia = emergencias.find(e => e.id === id);
   if(!emergencia) return;
+  const previo = {...emergencia};
   emergencia.estado = 'atendida';
   emergencia.atendidaTs = new Date().toISOString();
   const activo = getTurnoActivo();
   emergencia.atendidaPor = activo ? activo.guardiaNombre : 'Garita';
   DB.set('emergencias', emergencias);
+  registrarAuditoria(
+    'resolver_emergencia',
+    'emergencias',
+    emergencia.id,
+    {resumen: resumenEntidadAuditoria('emergencias', emergencia), cambios: cambiosAuditoria(previo, emergencia, ['estado','atendidaTs','atendidaPor'])},
+    previo,
+    emergencia
+  );
   renderSeguridad();
 }
 
@@ -6657,8 +7127,20 @@ function escapeHtml(value) {
 function eliminar(key, id, callback) {
   if(!confirm('¿Eliminar este registro?')) return;
   let arr = DB.get(key);
+  const eliminado = arr.find(x=>x.id===id);
   arr = arr.filter(x=>x.id!==id);
   DB.set(key, arr);
+  registrarAuditoria(
+    'eliminar_registro',
+    key,
+    id,
+    {
+      entidadLabel: AUDIT_LABELS[key] || key,
+      resumen: resumenEntidadAuditoria(key, eliminado)
+    },
+    eliminado,
+    null
+  );
   callback();
 }
 

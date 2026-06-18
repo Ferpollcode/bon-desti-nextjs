@@ -78,6 +78,16 @@ Este documento resume las mejoras recomendadas para que el sistema sea mas robus
 
 ### Auditoria
 
+- Implementado como primera etapa en la app legacy: las acciones importantes se guardan localmente en `gd_auditoria`.
+- Cada evento registra fecha, actor, rol, entidad, identificador, detalle y, cuando aplica, valores anteriores y nuevos.
+- Esta auditoria local cubre:
+  - Creacion y edicion de accesos.
+  - Ingresos por QR de residente o pase temporal.
+  - Emergencias creadas y marcadas como atendidas.
+  - Eliminacion individual o masiva de registros.
+  - Importaciones desde Excel.
+  - Altas y cambios sobre lotes y residentes.
+- Al migrar a Supabase, mover estos eventos a una tabla `audit_logs` con RLS y almacenamiento inmutable.
 - Guardar acciones importantes:
   - Quien creo un ingreso.
   - Quien marco una emergencia como resuelta.
@@ -283,4 +293,3 @@ Este documento resume las mejoras recomendadas para que el sistema sea mas robus
   - Carga de datos.
   - Mantenimiento mensual.
   - Nuevos modulos o cambios grandes.
-
