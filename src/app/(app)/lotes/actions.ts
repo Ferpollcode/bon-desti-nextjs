@@ -1,0 +1,59 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+
+export type LoteState = { error?: string; success?: boolean } | null;
+
+export async function saveLote(
+  id: string | null,
+  _prev: LoteState,
+  formData: FormData,
+): Promise<LoteState> {
+  const supabase = await createClient();
+  const numero = (formData.get("numero") as string)?.trim();
+  const estado = (formData.get("estado") as string) || "sin_datos";
+  const observaciones = (formData.get("observaciones") as string)?.trim() || null;
+
+  if (!numero) return { error: "El número de lote es requerido" };
+
+  if (id) {
+    const { error } = await supabase
+      .from("lotes")
+      .update({ numero, estado, observaciones })
+      .eq("id", id);
+    if (error) return { error: error.message };
+  } else {
+    const { error } = await supabase
+      .from("lotes")
+      .insert({ numero, estado, observaciones });
+    if (error) return { error: error.message };
+  }
+
+  revalidatePath("/lotes");
+  return { success: true };
+}
+
+export async function cambiarEstadoLote(
+  id: string,
+  estado: string,
+  _formData: FormData,
+) {
+  const supabase = await createClient();
+  await supabase.from("lotes").update({ estado }).eq("id", id);
+  revalidatePath("/lotes");
+}
+
+export async function eliminarLote(id: string, _formData: FormData) {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("residentes")
+    .select("*", { count: "exact", head: true })
+    .eq("lote_id", id)
+    .eq("activo", true);
+
+  if ((count ?? 0) > 0) return;
+
+  await supabase.from("lotes").delete().eq("id", id);
+  revalidatePath("/lotes");
+}

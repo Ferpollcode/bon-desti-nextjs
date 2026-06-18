@@ -1,26 +1,70 @@
-export default function PortalPage() {
+import { createClient } from "@/lib/supabase/server";
+import type { Residente, Lote } from "@/lib/types/database";
+import EmergenciaButton from "./EmergenciaButton";
+import LoteSelector from "./LoteSelector";
+
+async function getResidentesDelUsuario(
+  userId: string,
+): Promise<(Residente & { lote: Lote | null })[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("residentes")
+    .select("*, lote:lotes(*)")
+    .eq("profile_id", userId)
+    .eq("activo", true);
+  return (data ?? []) as (Residente & { lote: Lote | null })[];
+}
+
+export default async function PortalPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lote?: string }>;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { lote: loteParam } = await searchParams;
+
+  const residentes = user ? await getResidentesDelUsuario(user.id) : [];
+
+  const selectedLoteId =
+    loteParam ??
+    (residentes.length === 1 ? (residentes[0].lote_id ?? undefined) : undefined);
+
+  const selectedResidente = residentes.find(
+    (r) => r.lote_id === selectedLoteId,
+  );
+
   return (
     <>
       {/* Mi casa / lote — full width */}
       <div className="owner-card portal-full">
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label>Mi casa / lote</label>
-          <select>
-            <option value="">-- Seleccionar casa --</option>
-          </select>
+          <LoteSelector
+            key={selectedLoteId ?? "none"}
+            residentes={residentes}
+            selectedLoteId={selectedLoteId}
+          />
         </div>
-        <p className="owner-card-subtitle" style={{ marginTop: 8, marginBottom: 0 }}>
-          Seleccioná su casa para enviar emergencias identificadas.
-        </p>
+        {selectedResidente && (
+          <p className="owner-card-subtitle" style={{ marginTop: 8, marginBottom: 0 }}>
+            {selectedResidente.nombre} {selectedResidente.apellido} ·{" "}
+            {selectedResidente.tipo === "propietario" ? "Propietario" : "Inquilino"}
+          </p>
+        )}
+        {!selectedLoteId && (
+          <p className="owner-card-subtitle" style={{ marginTop: 8, marginBottom: 0 }}>
+            Seleccioná tu casa para usar todas las funciones del portal.
+          </p>
+        )}
       </div>
 
       {/* Emergencia + Autorizar visita — full width */}
       <div className="owner-card owner-emergency-card portal-full">
-        <button className="emergency-button" type="button">
-          <i className="ti ti-alert-triangle" aria-hidden="true" />
-          <strong>EMERGENCIA</strong>
-          <span>Avisa de inmediato a la garita de seguridad</span>
-        </button>
+        <EmergenciaButton loteId={selectedLoteId ?? null} />
         <button className="btn btn-primary owner-visit-btn" type="button">
           <i className="ti ti-user-plus" /> AUTORIZAR VISITA
         </button>
@@ -29,19 +73,23 @@ export default function PortalPage() {
       {/* Seguridad ahora */}
       <div className="owner-card">
         <div className="card-title">Seguridad ahora</div>
-        <div className="empty" style={{ padding: "24px 0 8px" }}>No hay turno activo informado.</div>
+        <div className="empty" style={{ padding: "24px 0 8px" }}>
+          No hay turno activo informado.
+        </div>
       </div>
 
       {/* QR de residentes */}
       <div className="owner-card">
         <div className="card-title">QR de residentes</div>
         <p className="owner-card-subtitle">
-          Cada residente puede usar su QR desde el teléfono o impreso en el vehículo para
-          registrar ingreso y salida.
+          Cada residente puede usar su QR desde el teléfono o impreso en el
+          vehículo para registrar ingreso y salida.
         </p>
         <div className="divider" />
         <div className="empty" style={{ padding: "16px 0 8px" }}>
-          Seleccione su casa para ver los QR de residentes.
+          {selectedLoteId
+            ? "Próximamente: generación de QR residentes."
+            : "Seleccione su casa para ver los QR de residentes."}
         </div>
       </div>
 
@@ -65,7 +113,8 @@ export default function PortalPage() {
       <div className="owner-card portal-full">
         <div className="card-title">Access Control</div>
         <p className="owner-card-subtitle">
-          Notificaciones de administración, votaciones virtuales y comunicaciones del barrio.
+          Notificaciones de administración, votaciones virtuales y
+          comunicaciones del barrio.
         </p>
         <div style={{ display: "grid", gap: 0 }} className="portal-access-grid">
           <div>
@@ -101,7 +150,10 @@ export default function PortalPage() {
         </div>
         <div className="form-group">
           <label>Mensaje</label>
-          <textarea placeholder="Escriba el mensaje para otro residente" rows={4} />
+          <textarea
+            placeholder="Escriba el mensaje para otro residente"
+            rows={4}
+          />
         </div>
         <button className="btn btn-primary" type="button" style={{ gap: 8 }}>
           <i className="ti ti-send" /> Enviar mensaje
@@ -175,7 +227,11 @@ export default function PortalPage() {
             ))}
           </div>
         </div>
-        <button className="btn btn-primary" type="button" style={{ gap: 8, marginTop: 4 }}>
+        <button
+          className="btn btn-primary"
+          type="button"
+          style={{ gap: 8, marginTop: 4 }}
+        >
           <i className="ti ti-qrcode" /> Generar pase QR
         </button>
         <div className="divider" />
@@ -208,11 +264,17 @@ export default function PortalPage() {
         </div>
         <div className="form-group">
           <label>Asunto</label>
-          <input type="text" placeholder="Ej: luminaria, ruido, acceso, mantenimiento" />
+          <input
+            type="text"
+            placeholder="Ej: luminaria, ruido, acceso, mantenimiento"
+          />
         </div>
         <div className="form-group">
           <label>Mensaje</label>
-          <textarea placeholder="Escriba el detalle para que puedan darle seguimiento" rows={4} />
+          <textarea
+            placeholder="Escriba el detalle para que puedan darle seguimiento"
+            rows={4}
+          />
         </div>
         <button className="btn btn-primary" type="button" style={{ gap: 8 }}>
           <i className="ti ti-send" /> Enviar

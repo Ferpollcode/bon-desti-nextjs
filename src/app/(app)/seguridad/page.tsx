@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import type { IngresoCompleto } from "@/lib/types/database";
+import type { IngresoCompleto, Residente, Lote } from "@/lib/types/database";
+import RegistroIngreso from "./RegistroIngreso";
+import { registrarEgreso } from "./actions";
 
 async function getIngresos(): Promise<IngresoCompleto[]> {
   const supabase = await createClient();
@@ -26,15 +28,39 @@ async function getStatsHoy() {
   return { entradas: entradas ?? 0, dentro: dentro ?? 0 };
 }
 
+async function getResidentesYLotes(): Promise<{
+  residentes: Residente[];
+  lotes: Lote[];
+}> {
+  const supabase = await createClient();
+  const [{ data: residentes }, { data: lotes }] = await Promise.all([
+    supabase
+      .from("residentes")
+      .select("*")
+      .eq("activo", true)
+      .order("apellido"),
+    supabase.from("lotes").select("*").order("numero"),
+  ]);
+  return {
+    residentes: (residentes ?? []) as Residente[],
+    lotes: (lotes ?? []) as Lote[],
+  };
+}
+
 function formatTs(ts: string) {
   return new Date(ts).toLocaleString("es-AR", {
-    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 function nombreIngreso(ingreso: IngresoCompleto): string {
-  if (ingreso.residente) return `${ingreso.residente.nombre} ${ingreso.residente.apellido}`;
-  if (ingreso.visitante) return `${ingreso.visitante.nombre} ${ingreso.visitante.apellido}`;
+  if (ingreso.residente)
+    return `${ingreso.residente.nombre} ${ingreso.residente.apellido}`;
+  if (ingreso.visitante)
+    return `${ingreso.visitante.nombre} ${ingreso.visitante.apellido}`;
   return "—";
 }
 
@@ -53,7 +79,11 @@ const tipoLabel: Record<string, string> = {
 };
 
 export default async function SeguridadPage() {
-  const [ingresos, stats] = await Promise.all([getIngresos(), getStatsHoy()]);
+  const [ingresos, stats, { residentes, lotes }] = await Promise.all([
+    getIngresos(),
+    getStatsHoy(),
+    getResidentesYLotes(),
+  ]);
 
   return (
     <div>
@@ -62,6 +92,7 @@ export default async function SeguridadPage() {
           <div className="page-title">Registro de accesos</div>
           <div className="page-sub">Historial completo de entradas y salidas</div>
         </div>
+        <RegistroIngreso residentes={residentes} lotes={lotes} />
       </div>
 
       <div className="stats-grid">
@@ -87,14 +118,17 @@ export default async function SeguridadPage() {
                 <th>Vehículo</th>
                 <th>Movimiento</th>
                 <th>Notas</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {ingresos.length === 0 ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <div className="empty">
-                      <div className="empty-icon"><i className="ti ti-barrier-block" /></div>
+                      <div className="empty-icon">
+                        <i className="ti ti-barrier-block" />
+                      </div>
                       Sin registros de acceso
                     </div>
                   </td>
@@ -102,21 +136,42 @@ export default async function SeguridadPage() {
               ) : (
                 ingresos.map((ingreso) => (
                   <tr key={ingreso.id}>
-                    <td style={{ whiteSpace: "nowrap" }}>{formatTs(ingreso.ingresado_at)}</td>
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      {formatTs(ingreso.ingresado_at)}
+                    </td>
                     <td>{nombreIngreso(ingreso)}</td>
                     <td>
-                      <span className={`badge ${tipoBadge[ingreso.tipo] ?? "badge-gray"}`}>
+                      <span
+                        className={`badge ${tipoBadge[ingreso.tipo] ?? "badge-gray"}`}
+                      >
                         {tipoLabel[ingreso.tipo] ?? ingreso.tipo}
                       </span>
                     </td>
-                    <td>{ingreso.lote ? `Lote ${ingreso.lote.numero}` : "—"}</td>
+                    <td>
+                      {ingreso.lote ? `Lote ${ingreso.lote.numero}` : "—"}
+                    </td>
                     <td>{ingreso.patente ?? "—"}</td>
                     <td>
-                      <span className={`badge ${ingreso.egresado_at ? "badge-red" : "badge-green"}`}>
+                      <span
+                        className={`badge ${ingreso.egresado_at ? "badge-red" : "badge-green"}`}
+                      >
                         {ingreso.egresado_at ? "Salida" : "Entrada"}
                       </span>
                     </td>
                     <td>{ingreso.notas ?? "—"}</td>
+                    <td>
+                      {!ingreso.egresado_at && (
+                        <form action={registrarEgreso.bind(null, ingreso.id)}>
+                          <button
+                            type="submit"
+                            className="btn btn-sm"
+                            style={{ gap: 4, whiteSpace: "nowrap" }}
+                          >
+                            <i className="ti ti-door-exit" /> Egreso
+                          </button>
+                        </form>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
