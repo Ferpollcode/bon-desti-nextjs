@@ -54,5 +54,6 @@ export function getMobileNavItems(rol: Rol): NavItem[] {
 }
 
 export function isNavActive(href: string, pathname: string): boolean {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
 }
