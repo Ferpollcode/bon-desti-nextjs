@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import AppShell from "@/components/shell/AppShell";
-import type { Rol } from "@/lib/types/database";
+import PortalShell from "@/components/portal/PortalShell";
 
-export default async function AppLayout({
+export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -12,10 +11,7 @@ export default async function AppLayout({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Rol desde app_metadata (sincronizado por trigger, sin query extra al proxy)
-  const rol = ((user.app_metadata?.rol as string) || "seguridad") as Rol;
-
-  // Nombre opcional para mostrar en sidebar
+  // Nombre opcional — el proxy ya garantizó que solo residentes llegan aquí
   const { data: profile } = await supabase
     .from("profiles")
     .select("nombre")
@@ -23,8 +19,8 @@ export default async function AppLayout({
     .single();
 
   return (
-    <AppShell rol={rol} nombre={profile?.nombre ?? null}>
+    <PortalShell nombre={profile?.nombre ?? null}>
       {children}
-    </AppShell>
+    </PortalShell>
   );
 }

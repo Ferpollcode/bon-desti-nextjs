@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           style={{
             display: "grid",
             gap: 26,
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "minmax(280px, 1.15fr) minmax(280px, 0.85fr)",
             maxWidth: 980,
             width: "100%",
           }}
@@ -44,28 +44,24 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               boxShadow: "0 28px 70px rgba(0,0,0,0.32)",
               display: "flex",
               justifyContent: "center",
-              minHeight: 320,
+              minHeight: 500,
               padding: 36,
               position: "relative",
             }}
           >
             <div
               style={{
-                border: "2px solid rgba(85,80,68,0.18)",
-                inset: 28,
+                border: "2px solid rgba(118,247,194,0.22)",
+                borderRadius: 18,
+                inset: "28px",
                 pointerEvents: "none",
                 position: "absolute",
               }}
             />
             <div style={{ position: "relative", textAlign: "center" }}>
-              <img
-                src="/legacy/assets/bon-desti-logo.png"
-                alt="Bon Desti"
-                style={{ height: 80, marginBottom: 20, width: "auto" }}
-              />
               <div
                 style={{
-                  color: "#e8e3d8",
+                  color: "#ffffff",
                   fontFamily: "Georgia, 'Times New Roman', serif",
                   fontSize: 62,
                   lineHeight: 1,
@@ -76,7 +72,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </div>
               <div
                 style={{
-                  color: "#c9c4b8",
+                  color: "#b8c6d9",
                   fontFamily: "Georgia, 'Times New Roman', serif",
                   fontSize: 24,
                   marginTop: 18,

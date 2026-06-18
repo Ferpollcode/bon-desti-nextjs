@@ -10,13 +10,23 @@ export async function login(formData: FormData) {
   const redirectTo = formData.get("redirect") as string | null;
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: toEmail(usuario),
     password,
   });
 
-  if (error) {
+  if (error || !data.user) {
     redirect(`/login?error=Usuario+o+contraseña+incorrectos`);
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("rol")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profile?.rol === "residente") {
+    redirect("/portal");
   }
 
   redirect(redirectTo || "/");

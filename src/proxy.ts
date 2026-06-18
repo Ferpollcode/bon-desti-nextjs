@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 
 const PROTECTED_PATHS = [
   "/",
+  "/portal",
   "/seguridad",
   "/residentes",
   "/lotes",
@@ -56,8 +57,23 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Leer rol del JWT (app_metadata) — sin query adicional a la BD
+  const rol = (user?.app_metadata?.rol as string | undefined) ?? null;
+
   if (isAuthPath && user) {
-    return NextResponse.redirect(new URL("/", request.url));
+    const dest = rol === "residente" ? "/portal" : "/";
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  // Forzar separación por rol en rutas protegidas
+  if (user && isProtected) {
+    const isPortal = pathname.startsWith("/portal");
+    if (rol === "residente" && !isPortal) {
+      return NextResponse.redirect(new URL("/portal", request.url));
+    }
+    if (rol !== "residente" && isPortal) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   return response;
@@ -68,3 +84,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|legacy|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf)$).*)",
   ],
 };
+
