@@ -584,7 +584,13 @@ th, td { min-width: 0; }
   box-shadow: var(--shadow);
   padding: 18px;
 }
-.owner-emergency-card { border-color: rgba(239, 68, 68, 0.45); padding: 12px; }
+.owner-emergency-card {
+  border-color: rgba(239, 68, 68, 0.45);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 12px;
+}
 .emergency-button {
   align-content: center;
   align-items: center;
@@ -608,7 +614,19 @@ th, td { min-width: 0; }
 .emergency-button i { font-size: 46px; }
 .emergency-button strong { font-size: 22px; font-weight: 950; letter-spacing: 0; }
 .emergency-button > span { color: rgba(255,255,255,.86); font-size: 14px; }
-.owner-visit-btn { justify-content: center; margin-top: 10px; min-height: 52px; width: 100%; }
+.owner-visit-btn {
+  align-content: center;
+  display: grid;
+  font-size: 22px;
+  font-weight: 950;
+  gap: 7px;
+  justify-items: center;
+  min-height: 138px;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+}
+.owner-visit-btn i { font-size: 46px; }
 .owner-card-subtitle { color: var(--text2); font-size: 12px; margin-bottom: 12px; margin-top: -6px; }
 .owner-section-title { color: var(--accent-text); font-size: 12px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
 .one-use-token {
@@ -907,6 +925,7 @@ th, td { min-width: 0; }
   .page-sub { font-size: 12px; line-height: 1.35; }
   .card, .stat { padding: 14px; }
   .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .owner-emergency-card { grid-template-columns: 1fr; }
   .dashboard-panels, .security-grid { grid-template-columns: 1fr; }
   .searchbar { display: grid; grid-template-columns: 1fr; }
   .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); margin: 0 -2px; overflow-x: auto; -webkit-overflow-scrolling: touch; }

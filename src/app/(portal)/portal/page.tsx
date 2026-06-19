@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import type { Residente, Lote } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
@@ -66,9 +67,9 @@ export default async function PortalPage({
       {/* Emergencia + Autorizar visita — full width */}
       <div className="owner-card owner-emergency-card portal-full">
         <EmergenciaButton loteId={selectedLoteId ?? null} />
-        <button className="btn btn-primary owner-visit-btn" type="button">
+        <Link className="btn btn-primary owner-visit-btn" href="#autorizar-visita">
           <i className="ti ti-user-plus" /> AUTORIZAR VISITA
-        </button>
+        </Link>
       </div>
 
       {/* Seguridad ahora */}
@@ -167,7 +168,7 @@ export default async function PortalPage({
       </div>
 
       {/* Pases temporales para visitantes */}
-      <div className="owner-card">
+      <div className="owner-card" id="autorizar-visita">
         <div className="card-title">Pases temporales para visitantes</div>
         <TokenUnicoVisita residenteId={selectedResidente?.id ?? null} />
         <div className="divider" />
