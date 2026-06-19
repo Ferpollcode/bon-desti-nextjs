@@ -18,8 +18,28 @@ export default async function PortalLayout({
     .eq("id", user.id)
     .single();
 
+  const { data: residentes } = await supabase
+    .from("residentes")
+    .select("id")
+    .eq("profile_id", user.id)
+    .eq("activo", true);
+  const residenteIds = (residentes ?? []).map((residente) => residente.id);
+  const comunicacionesQuery = supabase
+    .from("comunicaciones")
+    .select("*", { count: "exact", head: true });
+
+  const { count: notificaciones } =
+    residenteIds.length > 0
+      ? await comunicacionesQuery.or(
+          `destinatario_tipo.eq.todos,residente_id.in.(${residenteIds.join(",")})`,
+        )
+      : await comunicacionesQuery.eq("destinatario_tipo", "todos");
+
   return (
-    <PortalShell nombre={profile?.nombre ?? null}>
+    <PortalShell
+      nombre={profile?.nombre ?? null}
+      notificaciones={notificaciones ?? 0}
+    >
       {children}
     </PortalShell>
   );

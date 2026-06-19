@@ -138,7 +138,7 @@ export default async function PortalPage({
       </div>
 
       {/* Access Control — full width */}
-      <div className="owner-card portal-full">
+      <div className="owner-card portal-full" id="notificaciones">
         <div className="card-title">Access Control</div>
         <p className="owner-card-subtitle">
           Notificaciones de administración, votaciones virtuales y

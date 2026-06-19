@@ -583,6 +583,47 @@ th, td { min-width: 0; }
 }
 .owner-brand strong { color: var(--accent-text); display: block; font-size: 20px; }
 .owner-brand span { color: var(--text2); display: block; font-size: 12px; }
+.owner-top-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+.notification-bell {
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  color: var(--text2);
+  display: inline-flex;
+  height: 38px;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+  width: 38px;
+}
+.notification-bell i { font-size: 20px; }
+.notification-bell.has-alert {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.50);
+  color: #fbbf24;
+}
+.notification-bell span {
+  align-items: center;
+  background: var(--danger);
+  border: 2px solid #0b1d33;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  height: 18px;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 4px;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+}
 .owner-card {
   background: linear-gradient(180deg, rgba(15, 33, 56, 0.96), rgba(12, 27, 48, 0.96));
   border: 1px solid rgba(118, 247, 194, 0.18);
