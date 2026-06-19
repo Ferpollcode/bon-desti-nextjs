@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Residente, Lote } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
+import TokenUnicoVisita from "./TokenUnicoVisita";
 
 async function getResidentesDelUsuario(
   userId: string,
@@ -168,6 +169,8 @@ export default async function PortalPage({
       {/* Pases temporales para visitantes */}
       <div className="owner-card">
         <div className="card-title">Pases temporales para visitantes</div>
+        <TokenUnicoVisita residenteId={selectedResidente?.id ?? null} />
+        <div className="divider" />
         <div className="form-row">
           <div className="form-group">
             <label>Nombre del visitante</label>
