@@ -83,6 +83,7 @@ img, canvas, video { max-width: 100%; }
   background: linear-gradient(180deg, rgba(9, 22, 40, 0.98), rgba(7, 17, 31, 0.98));
   border-right: 1px solid var(--border);
   box-shadow: 14px 0 40px rgba(0,0,0,0.20);
+  overflow: hidden;
   width: 240px;
 }
 
@@ -94,6 +95,7 @@ img, canvas, video { max-width: 100%; }
 .sidebar-logo {
   border-bottom: 1px solid var(--border);
   display: grid;
+  flex-shrink: 0;
   justify-items: center;
   padding: 20px 16px 16px;
   text-align: center;
@@ -119,7 +121,14 @@ img, canvas, video { max-width: 100%; }
   width: min(190px, 100%);
 }
 
-.nav { padding: 12px 10px; }
+.nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 10px;
+  scrollbar-gutter: stable;
+}
 .nav-item {
   border: 1px solid transparent;
   border-radius: 10px;
@@ -179,6 +188,7 @@ img, canvas, video { max-width: 100%; }
   background: rgba(0,0,0,0.12);
   border-top: 1px solid var(--border);
   color: var(--text2);
+  flex-shrink: 0;
   font-size: 11px;
   padding: 12px 16px;
 }
@@ -186,7 +196,7 @@ img, canvas, video { max-width: 100%; }
 /* ── App main ── */
 .app-main {
   margin-left: 240px;
-  padding: 28px;
+  padding: 28px 28px 48px;
 }
 
 /* ── Mobile nav ── */
