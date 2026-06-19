@@ -27,6 +27,13 @@ const ESTADOS = [
   { value: "suspendida", label: "Suspendida", badge: "badge-red" },
 ];
 
+type PersonalRow = {
+  id: number;
+  nombre: string;
+  apellido: string;
+  dni: string;
+};
+
 function ObraFormContent({
   obra,
   lotes,
@@ -43,10 +50,38 @@ function ObraFormContent({
     action,
     null,
   );
+  const [personalRows, setPersonalRows] = useState<PersonalRow[]>([
+    { id: 1, nombre: "", apellido: "", dni: "" },
+  ]);
 
   useEffect(() => {
     if (state?.success) onSuccess();
   }, [state?.success]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function updatePersonalRow(
+    rowId: number,
+    field: keyof Omit<PersonalRow, "id">,
+    value: string,
+  ) {
+    setPersonalRows((rows) =>
+      rows.map((row) => (row.id === rowId ? { ...row, [field]: value } : row)),
+    );
+  }
+
+  function addPersonalRow() {
+    setPersonalRows((rows) => [
+      ...rows,
+      { id: Date.now(), nombre: "", apellido: "", dni: "" },
+    ]);
+  }
+
+  function removePersonalRow(rowId: number) {
+    setPersonalRows((rows) =>
+      rows.length === 1
+        ? [{ ...rows[0], nombre: "", apellido: "", dni: "" }]
+        : rows.filter((row) => row.id !== rowId),
+    );
+  }
 
   return (
     <form action={formAction}>
@@ -131,6 +166,89 @@ function ObraFormContent({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="form-group">
+        <div
+          style={{
+            alignItems: "center",
+            display: "flex",
+            gap: 10,
+            justifyContent: "space-between",
+            marginBottom: 8,
+          }}
+        >
+          <label style={{ marginBottom: 0 }}>Albañiles trabajando</label>
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={addPersonalRow}
+            style={{ gap: 4 }}
+          >
+            <i className="ti ti-user-plus" /> Agregar
+          </button>
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          {personalRows.map((row, index) => (
+            <div
+              key={row.id}
+              className="personal-row"
+              style={{
+                alignItems: "end",
+                display: "grid",
+                gap: 8,
+              }}
+            >
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>Nombre</label>
+                <input
+                  name="personal_nombre"
+                  type="text"
+                  placeholder="Nombre"
+                  value={row.nombre}
+                  onChange={(e) =>
+                    updatePersonalRow(row.id, "nombre", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>Apellido</label>
+                <input
+                  name="personal_apellido"
+                  type="text"
+                  placeholder="Apellido"
+                  value={row.apellido}
+                  onChange={(e) =>
+                    updatePersonalRow(row.id, "apellido", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label>DNI</label>
+                <input
+                  name="personal_dni"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DNI"
+                  value={row.dni}
+                  onChange={(e) =>
+                    updatePersonalRow(row.id, "dni", e.target.value)
+                  }
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => removePersonalRow(row.id)}
+                aria-label={`Quitar albañil ${index + 1}`}
+                title="Quitar"
+              >
+                <i className="ti ti-trash" />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       {state?.error && (

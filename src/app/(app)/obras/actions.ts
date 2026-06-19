@@ -17,10 +17,30 @@ export async function saveObra(
   const inicio = (formData.get("inicio") as string) || null;
   const fin_estimado = (formData.get("fin_estimado") as string) || null;
   const estado = (formData.get("estado") as string) || "pendiente";
+  const personalNombres = formData.getAll("personal_nombre").map((value) =>
+    String(value).trim(),
+  );
+  const personalApellidos = formData.getAll("personal_apellido").map((value) =>
+    String(value).trim(),
+  );
+  const personalDnis = formData.getAll("personal_dni").map((value) =>
+    String(value).trim(),
+  );
+  const personal = personalNombres
+    .map((nombre, index) => ({
+      nombre,
+      apellido: personalApellidos[index] ?? "",
+      dni: personalDnis[index] || null,
+    }))
+    .filter(({ nombre, apellido, dni }) => nombre || apellido || dni);
 
   if (!descripcion) return { error: "La descripción es requerida" };
   if (!lote_id) return { error: "El lote es requerido" };
+  if (personal.some(({ nombre, apellido }) => !nombre || !apellido)) {
+    return { error: "Cada albañil cargado debe tener nombre y apellido" };
+  }
 
+  let obraId = id;
   if (id) {
     const { error } = await supabase
       .from("obras")
@@ -28,9 +48,25 @@ export async function saveObra(
       .eq("id", id);
     if (error) return { error: error.message };
   } else {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("obras")
-      .insert({ lote_id, descripcion, responsable, inicio, fin_estimado, estado });
+      .insert({ lote_id, descripcion, responsable, inicio, fin_estimado, estado })
+      .select("id")
+      .single();
+    if (error) return { error: error.message };
+    obraId = data?.id ?? null;
+  }
+
+  if (obraId && personal.length > 0) {
+    const { error } = await supabase.from("personal_obra").insert(
+      personal.map(({ nombre, apellido, dni }) => ({
+        obra_id: obraId,
+        nombre,
+        apellido,
+        dni,
+        activo: true,
+      })),
+    );
     if (error) return { error: error.message };
   }
 

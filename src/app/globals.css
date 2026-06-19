@@ -792,6 +792,8 @@ th, td { min-width: 0; }
 .validation-card.fail { background: var(--danger-bg); border-color: rgba(255,77,94,0.3); color: #ff9aa3; }
 .validation-title { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
 
+.personal-row { grid-template-columns: 1fr 1fr minmax(120px, 0.7fr) auto; }
+
 /* ── Import ── */
 .import-help { color: var(--text2); font-size: 12px; line-height: 1.5; margin-bottom: 12px; }
 .import-help code { background: var(--surface2); border-radius: 4px; padding: 1px 5px; }
@@ -853,6 +855,8 @@ th, td { min-width: 0; }
     position: sticky;
   }
   .modal-footer .btn { flex: 1; justify-content: center; }
+  .personal-row { grid-template-columns: 1fr; }
+  .personal-row > .btn { justify-content: center; width: 100%; }
   .main-actions { gap: 12px; grid-template-columns: 1fr; }
   .main-action { min-height: 104px; padding: 18px 14px; }
   .main-action i { font-size: 32px; }
