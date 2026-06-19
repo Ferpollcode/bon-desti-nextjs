@@ -17,7 +17,7 @@ const navByRol: Record<Rol, NavItem[]> = {
     { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
     { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/auditoria", label: "AuditorÃ­a", icon: "ti-clipboard-list" },
+    { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
   ],
   admin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
