@@ -144,10 +144,10 @@ export default async function PortalPage({
           Notificaciones de administración, votaciones virtuales y
           comunicaciones del barrio.
         </p>
-        <div style={{ display: "grid", gap: 0 }} className="portal-access-grid">
-          <div>
+        <div className="portal-access-grid">
+          <div className="portal-access-item">
             <div className="owner-section-title">Notificaciones</div>
-            <div className="empty" style={{ padding: "16px 0 8px" }}>
+            <div className="portal-access-status">
               {comunicaciones.length === 0
                 ? "Sin notificaciones de administración."
                 : `${comunicaciones.length} notificaciones disponibles.`}
@@ -176,9 +176,9 @@ export default async function PortalPage({
             )}
           </div>
           <div className="divider" style={{ display: "none" }} />
-          <div>
+          <div className="portal-access-item">
             <div className="owner-section-title">Asambleas virtuales</div>
-            <div className="empty" style={{ padding: "16px 0 8px" }}>
+            <div className="portal-access-status">
               Sin votaciones abiertas.
             </div>
           </div>

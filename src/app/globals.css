@@ -635,6 +635,26 @@ th, td { min-width: 0; }
 .owner-visit-btn i { font-size: 46px; }
 .owner-card-subtitle { color: var(--text2); font-size: 12px; margin-bottom: 12px; margin-top: -6px; }
 .owner-section-title { color: var(--accent-text); font-size: 12px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
+.portal-access-grid { display: grid; gap: 12px; }
+.portal-access-item {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+  min-height: 48px;
+}
+.portal-access-item .owner-section-title { margin-bottom: 0; }
+.portal-access-status {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: right;
+}
+.portal-access-item .resident-message-list {
+  flex-basis: 100%;
+  margin-top: 8px;
+}
 .one-use-token {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(0, 182, 122, 0.12));
   border: 1px solid rgba(245, 158, 11, 0.32);
