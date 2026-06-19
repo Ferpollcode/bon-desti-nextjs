@@ -1,4 +1,5 @@
 import { logout } from "@/app/(auth)/login/actions";
+import ThemeToggle from "@/components/shell/ThemeToggle";
 
 interface PortalShellProps {
   nombre: string | null;
@@ -41,6 +42,7 @@ export default function PortalShell({
                 <span>{notificaciones > 9 ? "9+" : notificaciones}</span>
               )}
             </a>
+            <ThemeToggle />
             <form action={logout}>
               <button type="submit" className="btn btn-sm">Salir</button>
             </form>
