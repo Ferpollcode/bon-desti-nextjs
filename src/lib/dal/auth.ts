@@ -49,7 +49,11 @@ export async function requireRole(...roles: Profile["rol"][]) {
     .eq("id", user.id)
     .single();
 
-  if (!profile || !roles.includes(profile.rol)) {
+  const allowedRoles = roles.includes("admin")
+    ? [...roles, "seguridad" as const]
+    : roles;
+
+  if (!profile || !allowedRoles.includes(profile.rol)) {
     redirect("/dashboard");
   }
 

@@ -10,10 +10,14 @@ export interface NavItem {
 const navByRol: Record<Rol, NavItem[]> = {
   seguridad: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
+    { href: "/residentes", label: "Residentes", icon: "ti-users" },
+    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
     { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
     { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    { href: "/qr", label: "Escaner QR", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/obras", label: "Obras", icon: "ti-tool" },
+    { href: "/auditoria", label: "AuditorÃ­a", icon: "ti-clipboard-list" },
   ],
   admin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
