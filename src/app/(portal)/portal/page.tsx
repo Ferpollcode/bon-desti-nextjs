@@ -218,7 +218,7 @@ export default async function PortalPage({
       </div>
 
       {/* Pases temporales para visitantes */}
-      <div className="owner-card" id="autorizar-visita">
+      <div className="owner-card visitor-pass-card" id="autorizar-visita">
         <div className="card-title">Pases temporales para visitantes</div>
         <TokenUnicoVisita residenteId={selectedResidente?.id ?? null} />
         <div className="divider" />
