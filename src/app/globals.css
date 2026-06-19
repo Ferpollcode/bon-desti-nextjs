@@ -289,6 +289,12 @@ img, canvas, video { max-width: 100%; }
 .stat.green { border-left: 4px solid var(--accent); }
 .stat.blue { border-left: 4px solid var(--info); }
 .stat.amber { border-left: 4px solid var(--warn); }
+.stat.purple { border-left: 4px solid var(--purple); }
+
+.admin-message-form {
+  display: grid;
+  gap: 0;
+}
 .stat.red { border-left: 4px solid var(--danger); }
 
 /* ── Dashboard panels ── */

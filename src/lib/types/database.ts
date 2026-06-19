@@ -147,6 +147,16 @@ export interface AuditLog {
   created_at: string;
 }
 
+export interface Comunicacion {
+  id: string;
+  titulo: string;
+  mensaje: string;
+  destinatario_tipo: "todos" | "residente";
+  residente_id: string | null;
+  creado_por: string | null;
+  created_at: string;
+}
+
 // Tipos con joins comunes
 export interface ResidenteConLote extends Residente {
   lote: Lote | null;

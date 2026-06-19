@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import type { Residente, Lote } from "@/lib/types/database";
+import type { Comunicacion, Residente, Lote } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
 import TokenUnicoVisita from "./TokenUnicoVisita";
@@ -15,6 +15,31 @@ async function getResidentesDelUsuario(
     .eq("profile_id", userId)
     .eq("activo", true);
   return (data ?? []) as (Residente & { lote: Lote | null })[];
+}
+
+async function getComunicaciones(
+  residenteId: string | null,
+): Promise<Comunicacion[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("comunicaciones")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  query = residenteId
+    ? query.or(`destinatario_tipo.eq.todos,residente_id.eq.${residenteId}`)
+    : query.eq("destinatario_tipo", "todos");
+
+  const { data } = await query;
+  return (data ?? []) as Comunicacion[];
+}
+
+function formatFechaCorta(ts: string) {
+  return new Date(ts).toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+  });
 }
 
 export default async function PortalPage({
@@ -38,6 +63,7 @@ export default async function PortalPage({
   const selectedResidente = residentes.find(
     (r) => r.lote_id === selectedLoteId,
   );
+  const comunicaciones = await getComunicaciones(selectedResidente?.id ?? null);
 
   return (
     <>
@@ -122,8 +148,32 @@ export default async function PortalPage({
           <div>
             <div className="owner-section-title">Notificaciones</div>
             <div className="empty" style={{ padding: "16px 0 8px" }}>
-              Sin notificaciones de administración.
+              {comunicaciones.length === 0
+                ? "Sin notificaciones de administración."
+                : `${comunicaciones.length} notificaciones disponibles.`}
             </div>
+            {comunicaciones.length > 0 && (
+              <div className="resident-message-list">
+                {comunicaciones.map((comunicacion) => (
+                  <div key={comunicacion.id} className="resident-message">
+                    <div className="resident-message-header">
+                      <strong>{comunicacion.titulo}</strong>
+                      <span className="badge badge-gray">
+                        {comunicacion.destinatario_tipo === "todos"
+                          ? "General"
+                          : "Mi casa"}
+                      </span>
+                    </div>
+                    <div className="resident-message-body">
+                      {comunicacion.mensaje}
+                    </div>
+                    <div style={{ color: "var(--text3)", fontSize: 11, marginTop: 8 }}>
+                      {formatFechaCorta(comunicacion.created_at)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="divider" style={{ display: "none" }} />
           <div>

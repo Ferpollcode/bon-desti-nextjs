@@ -13,6 +13,7 @@ const PROTECTED_PATHS = [
   "/qr",
   "/obras",
   "/auditoria",
+  "/administracion",
 ];
 const AUTH_PATHS = ["/login"];
 
