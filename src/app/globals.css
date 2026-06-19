@@ -637,12 +637,13 @@ th, td { min-width: 0; }
 .owner-section-title { color: var(--accent-text); font-size: 12px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase; }
 .portal-access-grid { display: grid; gap: 12px; }
 .portal-access-item {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
   justify-content: space-between;
   min-height: 48px;
+  padding-top: 2px;
 }
 .portal-access-item .owner-section-title { margin-bottom: 0; }
 .portal-access-status {
