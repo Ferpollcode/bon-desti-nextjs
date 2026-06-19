@@ -792,6 +792,28 @@ th, td { min-width: 0; }
 .validation-card.fail { background: var(--danger-bg); border-color: rgba(255,77,94,0.3); color: #ff9aa3; }
 .validation-title { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
 
+.worker-section {
+  background: linear-gradient(135deg, rgba(0, 182, 122, 0.14), rgba(59, 130, 246, 0.10));
+  border: 1px solid rgba(118, 247, 194, 0.32);
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 14px;
+}
+.worker-section > div:first-child label {
+  color: var(--accent-text);
+  font-weight: 900;
+}
+.worker-add-btn {
+  background: rgba(0, 182, 122, 0.18);
+  border-color: rgba(118, 247, 194, 0.46);
+  color: var(--accent-text);
+  font-weight: 900;
+}
+[data-theme="light"] .worker-section {
+  background: linear-gradient(135deg, rgba(0, 143, 95, 0.10), rgba(37, 99, 235, 0.08));
+  border-color: rgba(0, 143, 95, 0.24);
+}
+
 .personal-row { grid-template-columns: 1fr 1fr minmax(120px, 0.7fr) auto; }
 
 /* ── Import ── */

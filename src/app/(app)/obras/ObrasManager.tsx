@@ -168,7 +168,7 @@ function ObraFormContent({
         </select>
       </div>
 
-      <div className="form-group">
+      <div className="form-group worker-section">
         <div
           style={{
             alignItems: "center",
@@ -181,7 +181,7 @@ function ObraFormContent({
           <label style={{ marginBottom: 0 }}>Albañiles trabajando</label>
           <button
             type="button"
-            className="btn btn-sm"
+            className="btn btn-sm worker-add-btn"
             onClick={addPersonalRow}
             style={{ gap: 4 }}
           >
