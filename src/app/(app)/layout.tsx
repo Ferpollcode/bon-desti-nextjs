@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/shell/AppShell";
+import EmergenciaAlerta from "./emergencias/EmergenciaAlerta";
 import type { Rol } from "@/lib/types/database";
 
 export default async function AppLayout({
@@ -24,6 +25,7 @@ export default async function AppLayout({
 
   return (
     <AppShell rol={rol} nombre={profile?.nombre ?? null}>
+      <EmergenciaAlerta />
       {children}
     </AppShell>
   );

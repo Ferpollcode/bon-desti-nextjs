@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { enviarEmergencia, type PortalState } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   loteId: string | null;
@@ -13,6 +14,17 @@ export default function EmergenciaButton({ loteId }: Props) {
     enviarEmergencia,
     null,
   );
+
+  useEffect(() => {
+    if (!state?.success) return;
+    const supabase = createClient();
+    const ch = supabase.channel("emergencias-garita");
+    ch.subscribe((status) => {
+      if (status !== "SUBSCRIBED") return;
+      ch.send({ type: "broadcast", event: "nueva_emergencia", payload: { lote_id: loteId } });
+      setTimeout(() => supabase.removeChannel(ch), 1000);
+    });
+  }, [state?.success, loteId]);
 
   if (state?.success) {
     return (
