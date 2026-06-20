@@ -116,9 +116,15 @@ La respuesta `ValidacionQR` se extiende con `visitanteNombre`, `motivo`, `restri
 
 **`QRScanner.tsx`:** el card de resultado muestra para pases temporales: nombre del visitante, motivo, restricciones horarias.
 
-**`registrarIngresoQR`:** para pases temporales, al confirmar entrada se crea un `ingreso` con `tipo: 'qr'` y se popula `notas` con el nombre del visitante. El pase NO se desactiva (puede usarse múltiples veces dentro del período).
+**`registrarIngresoQR`:** distingue por tipo de pase:
+- Pase `unico_uso` (residente): ingreso con `tipo: 'qr'`, `residente_id`. Pase se desactiva al confirmar.
+- Pase `temporal` (visitante): se crea o reutiliza un registro en `visitantes` con `nombre`, `documento` y `lote_id` del pase. Ingreso con `tipo: 'visitante'`, `visitante_id`. El pase NO se desactiva (múltiples usos dentro del período).
 
-### 4.5 Paquete QR
+### 4.5 Descarga y compartir QR
+
+El QR generado (tanto token único como pase temporal) muestra un botón **"Descargar QR"** que exporta el SVG a PNG vía canvas y dispara un `<a download>`. En móvil también se expone un botón **"Compartir"** usando la Web Share API (`navigator.share`) si está disponible.
+
+### 4.6 Paquete QR
 
 Instalar `react-qr-code` (no requiere canvas, solo SVG, funciona en SSR/CSR).
 
@@ -143,7 +149,7 @@ En `/administracion/page.tsx` se agrega una nueva sección al final: **"Buzón d
 
 Server Actions: `actualizarReclamo(id, { estado, respuesta })`.
 
-RLS: admin/seguridad pueden SELECT todos y UPDATE estado + respuesta. Residente solo puede SELECT los propios e INSERT.
+RLS: solo `admin`/`superadmin` pueden SELECT todos y UPDATE estado + respuesta. `seguridad` no accede a reclamos. Residente solo puede SELECT los propios e INSERT.
 
 ---
 
