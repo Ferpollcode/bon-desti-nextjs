@@ -1,9 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import type { Comunicacion, Residente, Lote } from "@/lib/types/database";
+import type { Comunicacion, Residente, Lote, Reclamo } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
 import TokenUnicoVisita from "./TokenUnicoVisita";
+import PaseTemporalForm from "./PaseTemporalForm";
+import PasesGenerados from "./PasesGenerados";
+import Reclamos from "./Reclamos";
 
 async function getResidentesDelUsuario(
   userId: string,
@@ -35,6 +38,18 @@ async function getComunicaciones(
   return (data ?? []) as Comunicacion[];
 }
 
+async function getReclamos(residenteId: string | null): Promise<Reclamo[]> {
+  if (!residenteId) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reclamos")
+    .select("*")
+    .eq("residente_id", residenteId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  return (data ?? []) as Reclamo[];
+}
+
 function formatFechaCorta(ts: string) {
   return new Date(ts).toLocaleDateString("es-AR", {
     day: "2-digit",
@@ -64,6 +79,7 @@ export default async function PortalPage({
     (r) => r.lote_id === selectedLoteId,
   );
   const comunicaciones = await getComunicaciones(selectedResidente?.id ?? null);
+  const reclamos = await getReclamos(selectedResidente?.id ?? null);
 
   return (
     <>
@@ -229,122 +245,20 @@ export default async function PortalPage({
         <div className="card-title">Pases temporales para visitantes</div>
         <TokenUnicoVisita residenteId={selectedResidente?.id ?? null} />
         <div className="divider" />
-        <div className="form-row">
-          <div className="form-group">
-            <label>Nombre del visitante</label>
-            <input type="text" placeholder="Nombre y apellido" />
-          </div>
-          <div className="form-group">
-            <label>DNI / CUIL</label>
-            <input type="text" placeholder="Documento del visitante" />
-          </div>
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Teléfono / WhatsApp</label>
-            <input type="text" placeholder="Ej: 5492615551234" />
-          </div>
-          <div className="form-group">
-            <label>Motivo</label>
-            <input type="text" placeholder="Visita, servicio, familiar" />
-          </div>
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Válido desde</label>
-            <input type="date" />
-          </div>
-          <div className="form-group">
-            <label>Válido hasta</label>
-            <input type="date" />
-          </div>
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Horario desde</label>
-            <input type="time" defaultValue="08:00" />
-          </div>
-          <div className="form-group">
-            <label>Horario hasta</label>
-            <input type="time" defaultValue="22:00" />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Días habilitados</label>
-          <div className="days-grid">
-            {[
-              { id: "lun", label: "Lun", checked: true },
-              { id: "mar", label: "Mar", checked: true },
-              { id: "mie", label: "Mié", checked: true },
-              { id: "jue", label: "Jue", checked: true },
-              { id: "vie", label: "Vie", checked: true },
-              { id: "sab", label: "Sáb", checked: false },
-              { id: "dom", label: "Dom", checked: false },
-            ].map((d) => (
-              <label key={d.id} className="day-check">
-                <input type="checkbox" defaultChecked={d.checked} />
-                {d.label}
-              </label>
-            ))}
-          </div>
-        </div>
-        <button
-          className="btn btn-primary"
-          type="button"
-          style={{ gap: 8, marginTop: 4 }}
-        >
-          <i className="ti ti-qrcode" /> Generar pase QR
-        </button>
+        <div className="owner-section-title">Pase QR temporal</div>
+        <p className="owner-card-subtitle">
+          Para visitas recurrentes: el visitante muestra el QR en la garita.
+        </p>
+        <PaseTemporalForm residenteId={selectedResidente?.id ?? null} />
         <div className="divider" />
         <div className="owner-section-title">Pases generados</div>
-        <div className="empty" style={{ padding: "16px 0 8px" }}>
-          Todavía no hay pases temporales generados.
-        </div>
+        <PasesGenerados residenteId={selectedResidente?.id ?? null} />
       </div>
 
       {/* Buzón de reclamos y sugerencias */}
       <div className="owner-card">
         <div className="card-title">Buzón de reclamos y sugerencias</div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Enviar a</label>
-            <select defaultValue="administracion">
-              <option value="administracion">Administración</option>
-              <option value="seguridad">Seguridad</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Tipo</label>
-            <select defaultValue="denuncia">
-              <option value="denuncia">Denuncia</option>
-              <option value="reclamo">Reclamo</option>
-              <option value="sugerencia">Sugerencia</option>
-              <option value="consulta">Consulta</option>
-            </select>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Asunto</label>
-          <input
-            type="text"
-            placeholder="Ej: luminaria, ruido, acceso, mantenimiento"
-          />
-        </div>
-        <div className="form-group">
-          <label>Mensaje</label>
-          <textarea
-            placeholder="Escriba el detalle para que puedan darle seguimiento"
-            rows={4}
-          />
-        </div>
-        <button className="btn btn-primary" type="button" style={{ gap: 8 }}>
-          <i className="ti ti-send" /> Enviar
-        </button>
-        <div className="divider" />
-        <div className="owner-section-title">Mis últimos mensajes</div>
-        <div className="empty" style={{ padding: "16px 0 8px" }}>
-          Todavía no hay mensajes enviados.
-        </div>
+        <Reclamos residenteId={selectedResidente?.id ?? null} reclamos={reclamos} />
       </div>
     </>
   );

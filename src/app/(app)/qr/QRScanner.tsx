@@ -227,22 +227,32 @@ export default function QRScanner() {
             </div>
             <div>
               <div style={{ fontWeight: 800, fontSize: 18 }}>
-                {residente
-                  ? `${residente.nombre} ${residente.apellido}`
-                  : "Residente"}
+                {pase.tipo === "temporal" && pase.visitante_nombre
+                  ? pase.visitante_nombre
+                  : residente
+                    ? `${residente.nombre} ${residente.apellido}`
+                    : "Residente"}
               </div>
-              {residente?.lote && (
-                <div style={{ color: "var(--text2)", fontSize: 13 }}>
-                  Lote {residente.lote.numero}
-                </div>
-              )}
+              {pase.tipo === "temporal"
+                ? residente && (
+                    <div style={{ color: "var(--text2)", fontSize: 13 }}>
+                      Visita a Lote {residente.lote?.numero ?? "—"}
+                    </div>
+                  )
+                : residente?.lote && (
+                    <div style={{ color: "var(--text2)", fontSize: 13 }}>
+                      Lote {residente.lote.numero}
+                    </div>
+                  )}
             </div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16, fontSize: 13 }}>
             <div>
               <span style={{ color: "var(--text3)" }}>Tipo de pase</span>
-              <div style={{ fontWeight: 600, textTransform: "capitalize" }}>{pase.tipo.replace("_", " ")}</div>
+              <div style={{ fontWeight: 600, textTransform: "capitalize" }}>
+                {pase.tipo === "unico_uso" ? "Token único" : pase.tipo === "temporal" ? "Temporal" : pase.tipo}
+              </div>
             </div>
             <div>
               <span style={{ color: "var(--text3)" }}>Estado</span>
@@ -254,6 +264,18 @@ export default function QRScanner() {
                 )}
               </div>
             </div>
+            {pase.tipo === "temporal" && pase.motivo && (
+              <div style={{ gridColumn: "1 / -1" }}>
+                <span style={{ color: "var(--text3)" }}>Motivo</span>
+                <div style={{ fontWeight: 600 }}>{pase.motivo}</div>
+              </div>
+            )}
+            {resultado.restricciones && (
+              <div style={{ gridColumn: "1 / -1" }}>
+                <span style={{ color: "var(--text3)" }}>Horario / días</span>
+                <div style={{ fontWeight: 600, fontSize: 12 }}>{resultado.restricciones}</div>
+              </div>
+            )}
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>

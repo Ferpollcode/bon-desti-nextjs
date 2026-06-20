@@ -5,6 +5,7 @@ import {
   generarTokenUnicoVisita,
   type TokenUnicoState,
 } from "./actions";
+import QRDisplay from "@/components/QRDisplay";
 
 interface TokenUnicoVisitaProps {
   residenteId: string | null;
@@ -103,20 +104,28 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
       )}
 
       {state?.token && (
-        <div className="token-result">
-          <div>
-            <span>Token generado</span>
-            <strong>{state.token}</strong>
+        <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="token-result">
+            <div>
+              <span>Token generado</span>
+              <strong style={{ fontSize: 24, letterSpacing: 4 }}>{state.token}</strong>
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={copyToken}
+              style={{ gap: 6 }}
+            >
+              <i className={`ti ${copied ? "ti-check" : "ti-copy"}`} />
+              {copied ? "Copiado" : "Copiar"}
+            </button>
           </div>
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={copyToken}
-            style={{ gap: 6 }}
-          >
-            <i className={`ti ${copied ? "ti-check" : "ti-copy"}`} />
-            {copied ? "Copiado" : "Copiar"}
-          </button>
+          <QRDisplay
+            value={state.token}
+            filename={`token-visita-${state.token}`}
+            label="Escaneá este QR en la garita"
+            size={180}
+          />
         </div>
       )}
     </form>

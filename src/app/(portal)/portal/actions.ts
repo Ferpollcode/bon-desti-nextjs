@@ -65,6 +65,19 @@ export async function generarTokenUnicoVisita(
 
   if (!residente) return { error: "No tenés permiso para generar pases en esa casa" };
 
+  // Generar token de 6 dígitos único entre pases activos
+  let token: string | null = null;
+  for (let i = 0; i < 3; i++) {
+    const candidato = String(Math.floor(Math.random() * 1000000)).padStart(6, "0");
+    const { count } = await supabase
+      .from("pases_qr")
+      .select("*", { count: "exact", head: true })
+      .eq("token", candidato)
+      .eq("activo", true);
+    if ((count ?? 1) === 0) { token = candidato; break; }
+  }
+  if (!token) return { error: "No se pudo generar un token único, intentá de nuevo" };
+
   const descripcion = documento
     ? `Visita: ${visitante} - DNI ${documento}`
     : `Visita: ${visitante}`;
@@ -75,6 +88,9 @@ export async function generarTokenUnicoVisita(
       residente_id,
       tipo: "unico_uso",
       descripcion,
+      token,
+      visitante_nombre: visitante,
+      visitante_documento: documento,
       vence_at,
       activo: true,
     })
@@ -89,4 +105,133 @@ export async function generarTokenUnicoVisita(
     token: data?.token,
     vence_at: data?.vence_at ?? null,
   };
+}
+
+export type PaseTemporalState = {
+  error?: string;
+  success?: boolean;
+  token?: string;
+} | null;
+
+export async function generarPaseTemporal(
+  _prev: PaseTemporalState,
+  formData: FormData,
+): Promise<PaseTemporalState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const residente_id = formData.get("residente_id") as string;
+  if (!residente_id) return { error: "Seleccioná tu casa primero" };
+
+  const { data: residente } = await supabase
+    .from("residentes")
+    .select("id")
+    .eq("id", residente_id)
+    .eq("profile_id", user.id)
+    .eq("activo", true)
+    .single();
+  if (!residente) return { error: "No tenés permiso para generar pases en esa casa" };
+
+  const visitante_nombre = (formData.get("visitante_nombre") as string)?.trim();
+  if (!visitante_nombre) return { error: "El nombre del visitante es requerido" };
+
+  const visitante_documento = (formData.get("visitante_documento") as string)?.trim() || null;
+  const visitante_telefono = (formData.get("visitante_telefono") as string)?.trim() || null;
+  const motivo = (formData.get("motivo") as string)?.trim() || null;
+  const valido_desde = (formData.get("valido_desde") as string) || null;
+  const vence_hasta = (formData.get("vence_at") as string) || null;
+  const hora_desde = (formData.get("hora_desde") as string) || null;
+  const hora_hasta = (formData.get("hora_hasta") as string) || null;
+  const dias = formData.getAll("dias_habilitados") as string[];
+
+  const { data, error } = await supabase
+    .from("pases_qr")
+    .insert({
+      residente_id,
+      tipo: "temporal",
+      descripcion: `Visita: ${visitante_nombre}`,
+      visitante_nombre,
+      visitante_documento,
+      visitante_telefono,
+      motivo,
+      valido_desde: valido_desde || null,
+      vence_at: vence_hasta ? new Date(vence_hasta + "T23:59:59").toISOString() : null,
+      hora_desde: hora_desde || null,
+      hora_hasta: hora_hasta || null,
+      dias_habilitados: dias,
+      activo: true,
+    })
+    .select("token")
+    .single();
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/portal");
+  return { success: true, token: data?.token };
+}
+
+export async function desactivarPase(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const id = formData.get("id") as string;
+
+  const { data: pase } = await supabase
+    .from("pases_qr")
+    .select("residente_id, residente:residentes(profile_id)")
+    .eq("id", id)
+    .single();
+
+  if (!pase) return;
+  const perfil = (pase.residente as unknown) as { profile_id: string | null } | null;
+  if (perfil?.profile_id !== user.id) return;
+
+  await supabase.from("pases_qr").update({ activo: false }).eq("id", id);
+  revalidatePath("/portal");
+}
+
+export type ReclamoState = { error?: string; success?: boolean } | null;
+
+export async function enviarReclamo(
+  _prev: ReclamoState,
+  formData: FormData,
+): Promise<ReclamoState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "No autenticado" };
+
+  const residente_id = formData.get("residente_id") as string;
+  if (!residente_id) return { error: "Seleccioná tu casa primero" };
+
+  const { data: residente } = await supabase
+    .from("residentes")
+    .select("id")
+    .eq("id", residente_id)
+    .eq("profile_id", user.id)
+    .eq("activo", true)
+    .single();
+  if (!residente) return { error: "No tenés permiso para enviar reclamos desde esa casa" };
+
+  const destinatario = formData.get("destinatario") as string;
+  const tipo = formData.get("tipo") as string;
+  const asunto = (formData.get("asunto") as string)?.trim();
+  const mensaje = (formData.get("mensaje") as string)?.trim();
+
+  if (!asunto) return { error: "El asunto es requerido" };
+  if (!mensaje) return { error: "El mensaje es requerido" };
+
+  const { error } = await supabase.from("reclamos").insert({
+    residente_id,
+    destinatario,
+    tipo,
+    asunto,
+    mensaje,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/portal");
+  return { success: true };
 }

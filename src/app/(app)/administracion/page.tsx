@@ -5,8 +5,10 @@ import type {
   IngresoCompleto,
   Lote,
   Residente,
+  ReclamoCompleto,
 } from "@/lib/types/database";
 import ComunicacionForm from "./ComunicacionForm";
+import ReclamosAdmin from "./ReclamosAdmin";
 
 interface ResidenteConLote extends Residente {
   lote: Lote | null;
@@ -92,6 +94,18 @@ async function getResidentes(): Promise<ResidenteConLote[]> {
   return (data ?? []) as ResidenteConLote[];
 }
 
+async function getReclamos(): Promise<ReclamoCompleto[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reclamos")
+    .select(
+      "*, residente:residentes(*, lote:lotes(*)), atendido_por_profile:profiles!reclamos_atendido_por_fkey(nombre, apellido)",
+    )
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return (data ?? []) as ReclamoCompleto[];
+}
+
 async function getComunicaciones(): Promise<ComunicacionConResidente[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -121,11 +135,12 @@ function nombreIngreso(ingreso: IngresoCompleto) {
 export default async function AdministracionPage() {
   await requireRole("admin");
 
-  const [stats, vehiculos, residentes, comunicaciones] = await Promise.all([
+  const [stats, vehiculos, residentes, comunicaciones, reclamos] = await Promise.all([
     getStats(),
     getVehiculosVisitas(),
     getResidentes(),
     getComunicaciones(),
+    getReclamos(),
   ]);
 
   return (
@@ -248,6 +263,11 @@ export default async function AdministracionPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <div className="card-title">Buzón de reclamos y sugerencias</div>
+        <ReclamosAdmin reclamos={reclamos} />
       </div>
     </div>
   );

@@ -50,3 +50,29 @@ export async function enviarComunicacion(
   revalidatePath("/portal");
   return { success: true };
 }
+
+export async function actualizarReclamo(
+  id: string,
+  _prev: null,
+  formData: FormData,
+): Promise<null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const estado = formData.get("estado") as string;
+  const respuesta = (formData.get("respuesta") as string)?.trim() || null;
+
+  await supabase
+    .from("reclamos")
+    .update({
+      estado,
+      respuesta,
+      atendido_por: user.id,
+      atendido_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  revalidatePath("/administracion");
+  return null;
+}

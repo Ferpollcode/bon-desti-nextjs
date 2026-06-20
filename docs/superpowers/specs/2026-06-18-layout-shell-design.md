@@ -105,6 +105,12 @@ Cada `page.tsx` en `(app)/` arranca como placeholder con el título de la secci�
 
 ---
 
+## Contenido centrado
+
+El área de contenido principal usa `max-width: 1100px` con `margin: 0 auto` y `padding: 24px`, igual que el `.main` del legacy. En mobile el padding se reduce a `16px`.
+
+---
+
 ## Lo que NO entra en este scope
 
 - Lógica de negocio de cada módulo (datos, formularios, tablas)
