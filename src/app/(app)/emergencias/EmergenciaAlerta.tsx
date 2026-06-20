@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 interface AlertaActiva {
   descripcion: string;
   lote_numero: string | null;
+  residente_nombre: string | null;
 }
 
 function playAlarm() {
@@ -40,6 +41,7 @@ export default function EmergenciaAlerta() {
       .channel("emergencias-garita")
       .on("broadcast", { event: "nueva_emergencia" }, async (msg) => {
         const lote_id = msg.payload?.lote_id as string | null | undefined;
+        const nombrePayload = msg.payload?.residente_nombre as string | null | undefined;
         let lote_numero: string | null = null;
 
         if (lote_id) {
@@ -51,18 +53,25 @@ export default function EmergenciaAlerta() {
           lote_numero = data?.numero ?? null;
         }
 
-        // Trae descripción de la última emergencia activa
         const { data: emergencia } = await supabase
           .from("emergencias")
-          .select("descripcion")
+          .select("descripcion, reportado_por_profile:profiles(nombre, apellido)")
           .eq("estado", "activa")
           .order("created_at", { ascending: false })
           .limit(1)
           .single();
 
+        const perfil = emergencia?.reportado_por_profile as
+          | { nombre: string | null; apellido: string | null }
+          | null;
+        const nombreDB = perfil
+          ? `${perfil.nombre ?? ""} ${perfil.apellido ?? ""}`.trim()
+          : null;
+
         setAlerta({
           descripcion: emergencia?.descripcion ?? "Emergencia reportada desde el portal",
           lote_numero,
+          residente_nombre: nombrePayload ?? nombreDB ?? null,
         });
         playAlarm();
       })
@@ -149,8 +158,15 @@ export default function EmergenciaAlerta() {
           </p>
 
           {alerta.lote_numero && (
-            <p style={{ color: "var(--text2)", fontSize: 14, marginBottom: 0 }}>
+            <p style={{ color: "var(--text2)", fontSize: 14, marginBottom: 4 }}>
               Lote {alerta.lote_numero}
+            </p>
+          )}
+
+          {alerta.residente_nombre && (
+            <p style={{ color: "var(--text2)", fontSize: 14, marginBottom: 0 }}>
+              Reportado por:{" "}
+              <strong style={{ color: "#fff" }}>{alerta.residente_nombre}</strong>
             </p>
           )}
 

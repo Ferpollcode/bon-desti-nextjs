@@ -92,7 +92,14 @@ export default async function PortalPage({
 
       {/* Emergencia + Autorizar visita — full width */}
       <div className="owner-card owner-emergency-card portal-full">
-        <EmergenciaButton loteId={selectedLoteId ?? null} />
+        <EmergenciaButton
+          loteId={selectedLoteId ?? null}
+          residenteNombre={
+            selectedResidente
+              ? `${selectedResidente.nombre} ${selectedResidente.apellido}`
+              : null
+          }
+        />
         <Link className="btn btn-primary owner-visit-btn" href="#autorizar-visita">
           <i className="ti ti-user-plus" /> AUTORIZAR VISITA
         </Link>

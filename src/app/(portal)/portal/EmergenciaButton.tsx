@@ -6,9 +6,26 @@ import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   loteId: string | null;
+  residenteNombre: string | null;
 }
 
-export default function EmergenciaButton({ loteId }: Props) {
+export default function EmergenciaButton({ loteId, residenteNombre }: Props) {
+  const [resetKey, setResetKey] = useState(0);
+  return (
+    <EmergenciaForm
+      key={resetKey}
+      loteId={loteId}
+      residenteNombre={residenteNombre}
+      onReset={() => setResetKey((k) => k + 1)}
+    />
+  );
+}
+
+function EmergenciaForm({
+  loteId,
+  residenteNombre,
+  onReset,
+}: Props & { onReset: () => void }) {
   const [confirmando, setConfirmando] = useState(false);
   const [state, formAction, pending] = useActionState<PortalState, FormData>(
     enviarEmergencia,
@@ -21,10 +38,14 @@ export default function EmergenciaButton({ loteId }: Props) {
     const ch = supabase.channel("emergencias-garita");
     ch.subscribe((status) => {
       if (status !== "SUBSCRIBED") return;
-      ch.send({ type: "broadcast", event: "nueva_emergencia", payload: { lote_id: loteId } });
+      ch.send({
+        type: "broadcast",
+        event: "nueva_emergencia",
+        payload: { lote_id: loteId, residente_nombre: residenteNombre },
+      });
       setTimeout(() => supabase.removeChannel(ch), 1000);
     });
-  }, [state?.success, loteId]);
+  }, [state?.success, loteId, residenteNombre]);
 
   if (state?.success) {
     return (
@@ -49,6 +70,14 @@ export default function EmergenciaButton({ loteId }: Props) {
         <span style={{ color: "var(--text2)", fontSize: 13 }}>
           Seguridad fue alertada de inmediato
         </span>
+        <button
+          type="button"
+          className="btn"
+          onClick={onReset}
+          style={{ marginTop: 4, gap: 6 }}
+        >
+          <i className="ti ti-alert-triangle" /> Enviar otra emergencia
+        </button>
       </div>
     );
   }
@@ -64,13 +93,7 @@ export default function EmergenciaButton({ loteId }: Props) {
           textAlign: "center",
         }}
       >
-        <p
-          style={{
-            color: "#ff9aa3",
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
+        <p style={{ color: "#ff9aa3", fontWeight: 700, marginBottom: 12 }}>
           ¿Confirmás la emergencia? Seguridad será alertada de inmediato.
         </p>
         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
