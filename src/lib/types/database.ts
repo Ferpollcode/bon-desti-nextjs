@@ -107,6 +107,15 @@ export interface PaseQR {
   vence_at: string | null;
   usado_at: string | null;
   created_at: string;
+  // Campos para pases temporales de visitantes
+  visitante_nombre: string | null;
+  visitante_documento: string | null;
+  visitante_telefono: string | null;
+  motivo: string | null;
+  valido_desde: string | null;
+  hora_desde: string | null;
+  hora_hasta: string | null;
+  dias_habilitados: string[];
 }
 
 export interface Obra {
@@ -155,6 +164,30 @@ export interface Comunicacion {
   residente_id: string | null;
   creado_por: string | null;
   created_at: string;
+}
+
+export type EstadoReclamo = "pendiente" | "en_proceso" | "resuelto";
+export type TipoReclamo = "denuncia" | "reclamo" | "sugerencia" | "consulta";
+export type DestinatarioReclamo = "administracion" | "seguridad";
+
+export interface Reclamo {
+  id: string;
+  residente_id: string | null;
+  destinatario: DestinatarioReclamo;
+  tipo: TipoReclamo;
+  asunto: string;
+  mensaje: string;
+  estado: EstadoReclamo;
+  respuesta: string | null;
+  atendido_por: string | null;
+  atendido_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ReclamoCompleto extends Reclamo {
+  residente: (Residente & { lote: Lote | null }) | null;
+  atendido_por_profile: Profile | null;
 }
 
 // Tipos con joins comunes
