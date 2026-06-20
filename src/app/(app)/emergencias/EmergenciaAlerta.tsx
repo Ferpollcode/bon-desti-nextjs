@@ -61,7 +61,7 @@ export default function EmergenciaAlerta() {
           .limit(1)
           .single();
 
-        const perfil = emergencia?.reportado_por_profile as
+        const perfil = (emergencia?.reportado_por_profile as unknown) as
           | { nombre: string | null; apellido: string | null }
           | null;
         const nombreDB = perfil
