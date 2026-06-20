@@ -7,41 +7,45 @@ export interface NavItem {
   mobileLabel?: string;
 }
 
+// Primeros 4 = bottom bar fija; el resto va en el panel "Más"
 const navByRol: Record<Rol, NavItem[]> = {
   seguridad: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
+    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
+    // — panel "Más" —
+    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
     { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
-    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
-    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone" },
+    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
     { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
   ],
   admin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
+    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
+    // — panel "Más" —
+    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
     { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
-    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
-    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone" },
+    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
     { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
   ],
   superadmin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
+    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
+    // — panel "Más" —
+    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
     { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
-    { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
-    { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone" },
+    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
     { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
   ],
   residente: [
@@ -56,9 +60,6 @@ export function getNavItems(rol: Rol): NavItem[] {
   return navByRol[rol] ?? navByRol.seguridad;
 }
 
-export function getMobileNavItems(rol: Rol): NavItem[] {
-  return getNavItems(rol).slice(0, 5);
-}
 
 export function isNavActive(href: string, pathname: string): boolean {
   if (href === "/") return pathname === "/";

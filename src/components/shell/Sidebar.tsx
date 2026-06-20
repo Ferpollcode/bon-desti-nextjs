@@ -21,18 +21,7 @@ export default function Sidebar({ rol, nombre, pathname }: SidebarProps) {
   const items = getNavItems(rol);
 
   return (
-    <aside
-      className="sidebar"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        left: 0,
-        position: "fixed",
-        top: 0,
-        zIndex: 100,
-      }}
-    >
+    <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
         <img

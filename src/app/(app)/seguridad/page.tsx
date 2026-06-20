@@ -158,7 +158,14 @@ export default async function SeguridadPage() {
                         {ingreso.egresado_at ? "Salida" : "Entrada"}
                       </span>
                     </td>
-                    <td>{ingreso.notas ?? "—"}</td>
+                    <td>
+                      {ingreso.visitante
+                        ? [
+                            `${ingreso.visitante.nombre} ${ingreso.visitante.apellido}`,
+                            ingreso.visitante.documento ? `DNI ${ingreso.visitante.documento}` : null,
+                          ].filter(Boolean).join(" · ")
+                        : (ingreso.notas ?? "—")}
+                    </td>
                     <td>
                       {!ingreso.egresado_at && (
                         <form action={registrarEgreso.bind(null, ingreso.id)}>

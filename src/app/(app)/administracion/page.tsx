@@ -256,7 +256,14 @@ export default async function AdministracionPage() {
                         {ingreso.egresado_at ? "Salió" : "Dentro"}
                       </span>
                     </td>
-                    <td>{ingreso.notas ?? "—"}</td>
+                    <td>
+                      {ingreso.visitante
+                        ? [
+                            `${ingreso.visitante.nombre} ${ingreso.visitante.apellido}`,
+                            ingreso.visitante.documento ? `DNI ${ingreso.visitante.documento}` : null,
+                          ].filter(Boolean).join(" · ")
+                        : (ingreso.notas ?? "—")}
+                    </td>
                   </tr>
                 ))
               )}
