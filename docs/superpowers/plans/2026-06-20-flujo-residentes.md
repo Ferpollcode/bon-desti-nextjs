@@ -1336,6 +1336,7 @@ export async function registrarIngresoQR(
       await supabase.from("ingresos").insert({
         tipo: "visitante",
         visitante_id,
+        residente_id: pase.residente_id,   // residente que autorizó la visita
         lote_id,
         registrado_por: user.id,
         notas: (pase as PaseQR).motivo ?? null,
