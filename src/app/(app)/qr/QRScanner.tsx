@@ -21,39 +21,53 @@ export default function QRScanner() {
     };
   }, []);
 
+  // Conectar stream al <video> una vez que el elemento está montado en el DOM
+  useEffect(() => {
+    if (!camActiva) return;
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!video || !stream) return;
+
+    video.srcObject = stream;
+    video.play().catch(() => {});
+
+    if (!("BarcodeDetector" in window)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
+    let cancelled = false;
+
+    async function detectar() {
+      if (cancelled || !video || !streamRef.current) return;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const codes: any[] = await detector.detect(video);
+        if (codes.length > 0) {
+          detenerCamara();
+          await procesarToken(codes[0].rawValue);
+          return;
+        }
+      } catch {
+        // frame sin QR, continuar
+      }
+      animRef.current = requestAnimationFrame(detectar);
+    }
+    animRef.current = requestAnimationFrame(detectar);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(animRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camActiva]);
+
   async function iniciarCamara() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCamActiva(true);
-
-      if (!("BarcodeDetector" in window)) return;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
-
-      async function detectar() {
-        if (!videoRef.current || !streamRef.current) return;
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const codes: any[] = await detector.detect(videoRef.current);
-          if (codes.length > 0) {
-            detenerCamara();
-            await procesarToken(codes[0].rawValue);
-            return;
-          }
-        } catch {
-          // frame sin QR, continuar
-        }
-        animRef.current = requestAnimationFrame(detectar);
-      }
-      animRef.current = requestAnimationFrame(detectar);
+      setCamActiva(true); // monta el <video>, luego el useEffect asigna el stream
     } catch {
       alert("No se pudo acceder a la cámara. Usa el campo de texto para ingresar el token.");
     }
@@ -132,6 +146,7 @@ export default function QRScanner() {
               }}
               playsInline
               muted
+              autoPlay
             />
             {/* Viewfinder overlay */}
             <div style={{
