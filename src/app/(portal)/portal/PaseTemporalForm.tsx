@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { generarPaseTemporal, type PaseTemporalState } from "./actions";
 import QRDisplay from "@/components/QRDisplay";
 
@@ -20,12 +20,22 @@ interface Props {
 
 export default function PaseTemporalForm({ residenteId }: Props) {
   const [formKey, setFormKey] = useState(0);
+  const [fase, setFase] = useState<"form" | "exito">("form");
   const [state, formAction, pending] = useActionState<PaseTemporalState, FormData>(
     generarPaseTemporal,
     null,
   );
 
-  if (state?.success && state.token) {
+  useEffect(() => {
+    if (state?.success) setFase("exito");
+  }, [state?.success]);
+
+  function generarOtro() {
+    setFase("form");
+    setFormKey((k) => k + 1);
+  }
+
+  if (fase === "exito" && state?.token) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="validation-card" style={{ textAlign: "center", padding: "16px 12px" }}>
@@ -47,7 +57,7 @@ export default function PaseTemporalForm({ residenteId }: Props) {
         <button
           type="button"
           className="btn"
-          onClick={() => setFormKey((k) => k + 1)}
+          onClick={generarOtro}
           style={{ gap: 6 }}
         >
           <i className="ti ti-plus" /> Generar otro pase

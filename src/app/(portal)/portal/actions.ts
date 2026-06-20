@@ -178,17 +178,21 @@ export async function desactivarPase(formData: FormData): Promise<void> {
 
   const id = formData.get("id") as string;
 
-  const { data: pase } = await supabase
+  // Verificar ownership sin join (evita bloqueo por RLS en la tabla residentes)
+  const { data: residentes } = await supabase
+    .from("residentes")
+    .select("id")
+    .eq("profile_id", user.id);
+
+  if (!residentes?.length) return;
+  const residenteIds = residentes.map((r) => r.id);
+
+  await supabase
     .from("pases_qr")
-    .select("residente_id, residente:residentes(profile_id)")
+    .update({ activo: false })
     .eq("id", id)
-    .single();
+    .in("residente_id", residenteIds);
 
-  if (!pase) return;
-  const perfil = (pase.residente as unknown) as { profile_id: string | null } | null;
-  if (perfil?.profile_id !== user.id) return;
-
-  await supabase.from("pases_qr").update({ activo: false }).eq("id", id);
   revalidatePath("/portal");
 }
 

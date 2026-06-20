@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { PaseQR } from "@/lib/types/database";
-import QRDisplay from "@/components/QRDisplay";
 import { desactivarPase } from "./actions";
+import PaseCard from "./PaseCard";
 
 interface Props {
   residenteId: string | null;
@@ -92,55 +92,7 @@ export default async function PasesGenerados({ residenteId }: Props) {
             Pases QR temporales activos
           </div>
           {temporales.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                padding: "12px",
-                marginBottom: 8,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 12,
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600 }}>{p.visitante_nombre ?? "—"}</div>
-                  <div style={{ color: "var(--text2)", fontSize: 12 }}>
-                    {p.motivo && `${p.motivo} · `}
-                    {p.valido_desde && `Desde ${formatFecha(p.valido_desde)} `}
-                    {p.vence_at && `hasta ${formatFecha(p.vence_at)}`}
-                  </div>
-                  {p.hora_desde && p.hora_hasta && (
-                    <div style={{ color: "var(--text3)", fontSize: 11 }}>
-                      {p.hora_desde} – {p.hora_hasta}
-                      {p.dias_habilitados?.length > 0 &&
-                        ` · ${p.dias_habilitados.join(", ")}`}
-                    </div>
-                  )}
-                </div>
-                <form action={desactivarPase}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <button
-                    type="submit"
-                    className="btn btn-sm"
-                    style={{ color: "var(--danger)", borderColor: "var(--danger)" }}
-                  >
-                    Desactivar
-                  </button>
-                </form>
-              </div>
-              <QRDisplay
-                value={p.token}
-                filename={`pase-${p.visitante_nombre ?? p.id}`}
-                size={140}
-              />
-            </div>
+            <PaseCard key={p.id} pase={p} />
           ))}
         </div>
       )}
