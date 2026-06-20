@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import jsQR from "jsqr";
 import { validarToken, registrarIngresoQR, type ValidacionQR } from "./actions";
 
 export default function QRScanner() {
@@ -31,28 +32,54 @@ export default function QRScanner() {
     video.srcObject = stream;
     video.play().catch(() => {});
 
-    if (!("BarcodeDetector" in window)) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
     let cancelled = false;
 
-    async function detectar() {
-      if (cancelled || !video || !streamRef.current) return;
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const codes: any[] = await detector.detect(video);
-        if (codes.length > 0) {
-          detenerCamara();
-          await procesarToken(codes[0].rawValue);
-          return;
+    // BarcodeDetector (Chrome/Android) — más rápido, usa GPU
+    if ("BarcodeDetector" in window) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
+
+      async function detectarNativo() {
+        if (cancelled || !video || !streamRef.current) return;
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const codes: any[] = await detector.detect(video);
+          if (codes.length > 0) {
+            detenerCamara();
+            await procesarToken(codes[0].rawValue);
+            return;
+          }
+        } catch {
+          // frame sin QR, continuar
         }
-      } catch {
-        // frame sin QR, continuar
+        animRef.current = requestAnimationFrame(detectarNativo);
       }
-      animRef.current = requestAnimationFrame(detectar);
+      animRef.current = requestAnimationFrame(detectarNativo);
+    } else {
+      // jsQR fallback — canvas, funciona en Safari iOS
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      function detectarJsQR() {
+        if (cancelled || !video || !streamRef.current || !ctx) return;
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "dontInvert",
+          });
+          if (code) {
+            detenerCamara();
+            procesarToken(code.data);
+            return;
+          }
+        }
+        animRef.current = requestAnimationFrame(detectarJsQR);
+      }
+      animRef.current = requestAnimationFrame(detectarJsQR);
     }
-    animRef.current = requestAnimationFrame(detectar);
 
     return () => {
       cancelled = true;
