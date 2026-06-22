@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import {
+  cargarLotesBonDesti,
   saveLote,
   cambiarEstadoLote,
   eliminarLote,
@@ -152,14 +153,21 @@ export default function LotesManager({ lotes }: Props) {
           <div className="page-title">Lotes</div>
           <div className="page-sub">Gestión de lotes y casas del barrio</div>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setModal("create")}
-          style={{ gap: 6 }}
-        >
-          <i className="ti ti-plus" /> Nuevo lote
-        </button>
+        <div className="section-actions">
+          <form action={cargarLotesBonDesti}>
+            <button type="submit" className="btn" style={{ gap: 6 }}>
+              <i className="ti ti-home-plus" /> Cargar lotes C-F
+            </button>
+          </form>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setModal("create")}
+            style={{ gap: 6 }}
+          >
+            <i className="ti ti-plus" /> Nuevo lote
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

@@ -36,7 +36,13 @@ const tipoLabel: Record<string, string> = {
   unico_uso: "Único uso",
 };
 
-export default async function QrPage() {
+type QrPageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function QrPage({ searchParams }: QrPageProps) {
+  const modoParam = (await searchParams).modo;
+  const modo = modoParam === "scan" || modoParam === "token" ? modoParam : "all";
   const pases = await getPases();
   const activos = pases.filter((p) => p.activo);
 
@@ -44,12 +50,18 @@ export default async function QrPage() {
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">Escáner QR</div>
-          <div className="page-sub">Registrá accesos escaneando el código del residente</div>
+          <div className="page-title">
+            {modo === "token" ? "Ingresar token" : "Escáner QR"}
+          </div>
+          <div className="page-sub">
+            {modo === "token"
+              ? "Registrá accesos ingresando el token manualmente"
+              : "Registrá accesos escaneando el código del residente"}
+          </div>
         </div>
       </div>
 
-      <QRScanner />
+      <QRScanner mode={modo} />
 
       {/* Pases registrados */}
       <div style={{ marginTop: 24 }}>

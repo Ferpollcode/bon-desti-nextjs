@@ -3,9 +3,6 @@ import Link from "next/link";
 import type { Comunicacion, Residente, Lote, Reclamo } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
-import TokenUnicoVisita from "./TokenUnicoVisita";
-import PaseTemporalForm from "./PaseTemporalForm";
-import PasesGenerados from "./PasesGenerados";
 import Reclamos from "./Reclamos";
 
 async function getResidentesDelUsuario(
@@ -80,6 +77,9 @@ export default async function PortalPage({
   );
   const comunicaciones = await getComunicaciones(selectedResidente?.id ?? null);
   const reclamos = await getReclamos(selectedResidente?.id ?? null);
+  const autorizarVisitaHref = selectedLoteId
+    ? `/portal/autorizar-visita?lote=${selectedLoteId}`
+    : "/portal/autorizar-visita";
 
   return (
     <>
@@ -116,7 +116,7 @@ export default async function PortalPage({
               : null
           }
         />
-        <Link className="btn btn-primary owner-visit-btn" href="#autorizar-visita">
+        <Link className="btn btn-primary owner-visit-btn" href={autorizarVisitaHref}>
           <i className="ti ti-user-plus" /> AUTORIZAR VISITA
         </Link>
       </div>
@@ -238,21 +238,6 @@ export default async function PortalPage({
         <div className="empty" style={{ padding: "16px 0 8px" }}>
           Seleccione su casa para ver conversaciones.
         </div>
-      </div>
-
-      {/* Pases temporales para visitantes */}
-      <div className="owner-card visitor-pass-card" id="autorizar-visita">
-        <div className="card-title">Pases temporales para visitantes</div>
-        <TokenUnicoVisita residenteId={selectedResidente?.id ?? null} />
-        <div className="divider" />
-        <div className="owner-section-title">Pase QR temporal</div>
-        <p className="owner-card-subtitle">
-          Para visitas recurrentes: el visitante muestra el QR en la garita.
-        </p>
-        <PaseTemporalForm residenteId={selectedResidente?.id ?? null} />
-        <div className="divider" />
-        <div className="owner-section-title">Pases generados</div>
-        <PasesGenerados residenteId={selectedResidente?.id ?? null} />
       </div>
 
       {/* Buzón de reclamos y sugerencias */}

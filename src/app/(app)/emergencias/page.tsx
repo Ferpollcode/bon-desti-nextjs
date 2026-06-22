@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import ConfirmActionForm from "@/components/ConfirmActionForm";
 import type { EmergenciaCompleta, Lote } from "@/lib/types/database";
 import CrearEmergencia from "./CrearEmergencia";
-import { cambiarEstadoEmergencia } from "./actions";
+import { cambiarEstadoEmergencia, eliminarEmergencia } from "./actions";
 
 async function getEmergencias(): Promise<EmergenciaCompleta[]> {
   const supabase = await createClient();
@@ -156,7 +157,7 @@ export default async function EmergenciasPage() {
                       {e.resuelto_at ? formatTs(e.resuelto_at) : "—"}
                     </td>
                     <td>
-                      <div style={{ display: "flex", gap: 6 }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                         {e.estado === "activa" && (
                           <form
                             action={cambiarEstadoEmergencia.bind(
@@ -202,6 +203,18 @@ export default async function EmergenciasPage() {
                             </button>
                           </form>
                         )}
+                        <ConfirmActionForm
+                          action={eliminarEmergencia.bind(null, e.id)}
+                          message="¿Borrar esta emergencia registrada?"
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-sm btn-danger"
+                            style={{ gap: 4, whiteSpace: "nowrap" }}
+                          >
+                            <i className="ti ti-trash" /> Borrar
+                          </button>
+                        </ConfirmActionForm>
                       </div>
                     </td>
                   </tr>

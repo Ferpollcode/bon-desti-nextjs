@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, type CSSProperties } from "react";
 import {
+  deleteResidente,
   saveResidente,
   toggleActivoResidente,
   type ResidenteState,
@@ -17,6 +18,50 @@ interface Props {
   residentes: ResidenteConLote[];
   lotes: Lote[];
 }
+
+const residentActionButtonStyle: CSSProperties = {
+  alignItems: "center",
+  columnGap: 4,
+  display: "inline-grid",
+  flexShrink: 0,
+  gridAutoColumns: "max-content",
+  gridAutoFlow: "column",
+  justifyContent: "center",
+  minHeight: 32,
+  minWidth: 36,
+  overflowWrap: "normal",
+  padding: "5px 9px",
+  whiteSpace: "nowrap",
+  width: 36,
+  wordBreak: "keep-all",
+};
+
+const residentActionButtonWideStyle: CSSProperties = {
+  ...residentActionButtonStyle,
+  minWidth: 128,
+  width: "max-content",
+};
+
+const residentIconButtonStyle: CSSProperties = {
+  ...residentActionButtonStyle,
+  minWidth: 36,
+  width: 36,
+};
+
+const residentActionLabelStyle: CSSProperties = {
+  display: "inline-block",
+  lineHeight: 1,
+  minWidth: "max-content",
+  overflowWrap: "normal",
+  whiteSpace: "nowrap",
+  wordBreak: "keep-all",
+};
+
+const residentNowrapStyle: CSSProperties = {
+  overflowWrap: "normal",
+  whiteSpace: "nowrap",
+  wordBreak: "keep-all",
+};
 
 function ResidenteFormContent({
   residente,
@@ -59,7 +104,7 @@ function ResidenteFormContent({
         </button>
       </div>
 
-      <div className="form-row">
+      <div className="form-row-3">
         <div className="form-group">
           <label>Nombre</label>
           <input
@@ -79,6 +124,17 @@ function ResidenteFormContent({
             placeholder="Apellido"
             defaultValue={residente?.apellido ?? ""}
           />
+        </div>
+        <div className="form-group">
+          <label>Lote</label>
+          <select name="lote_id" defaultValue={residente?.lote_id ?? ""}>
+            <option value="">Sin lote</option>
+            {lotes.map((l) => (
+              <option key={l.id} value={l.id}>
+                Lote {l.numero}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -120,18 +176,6 @@ function ResidenteFormContent({
             <option value="inquilino">Inquilino</option>
           </select>
         </div>
-      </div>
-
-      <div className="form-group">
-        <label>Lote</label>
-        <select name="lote_id" defaultValue={residente?.lote_id ?? ""}>
-          <option value="">— Sin lote asignado —</option>
-          {lotes.map((l) => (
-            <option key={l.id} value={l.id}>
-              Lote {l.numero}
-            </option>
-          ))}
-        </select>
       </div>
 
       {state?.error && (
@@ -345,14 +389,14 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
       {/* Nuevo button + table */}
       <div className="card">
         <div className="table-wrap">
-          <table>
+          <table className="residentes-table" style={residentNowrapStyle}>
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>DNI</th>
-                <th>Lote</th>
-                <th>Tipo</th>
-                <th>Teléfono</th>
+                <th className="resident-col-dni">DNI</th>
+                <th className="resident-col-lote">Lote</th>
+                <th className="resident-col-type">Tipo</th>
+                <th className="resident-col-phone">Teléfono</th>
                 <th>Portal</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -374,28 +418,31 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                 residentes.map((r) => (
                   <tr
                     key={r.id}
-                    style={{ opacity: r.activo ? 1 : 0.5 }}
+                    style={{
+                      opacity: r.activo ? 1 : 0.5,
+                      ...residentNowrapStyle,
+                    }}
                   >
-                    <td>
+                    <td style={residentNowrapStyle}>
                       <strong>
                         {r.apellido}, {r.nombre}
                       </strong>
                     </td>
-                    <td>{r.dni ?? "—"}</td>
-                    <td>
+                    <td className="resident-col-dni" style={residentNowrapStyle}>{r.dni ?? "—"}</td>
+                    <td className="resident-col-lote" style={residentNowrapStyle}>
                       {r.lote ? `Lote ${r.lote.numero}` : "—"}
                     </td>
-                    <td>
+                    <td className="resident-col-type" style={residentNowrapStyle}>
                       <span
                         className={`badge ${r.tipo === "propietario" ? "badge-green" : "badge-blue"}`}
                       >
                         {r.tipo === "propietario" ? "Propietario" : "Inquilino"}
                       </span>
                     </td>
-                    <td>{r.telefono ?? "—"}</td>
-                    <td>
+                    <td className="resident-col-phone" style={residentNowrapStyle}>{r.telefono ?? "—"}</td>
+                    <td className="resident-portal-cell" style={residentNowrapStyle}>
                       {r.profile_id ? (
-                        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                        <div className="resident-portal-actions">
                           <span className="badge badge-green">
                             <i className="ti ti-circle-check" /> Habilitado
                           </span>
@@ -406,38 +453,53 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                                 e.preventDefault();
                             }}
                           >
-                            <button type="submit" className="btn btn-sm btn-danger" style={{ gap: 4 }}>
-                              <i className="ti ti-user-x" /> Revocar
+                            <button
+                              type="submit"
+                              className="btn btn-sm btn-danger resident-action-btn"
+                              style={residentIconButtonStyle}
+                              title="Revocar acceso"
+                              aria-label="Revocar acceso"
+                            >
+                              <i className="ti ti-user-x" />
                             </button>
                           </form>
                         </div>
                       ) : (
                         <button
                           type="button"
-                          className="btn btn-sm"
+                          className="btn btn-sm resident-action-btn"
                           onClick={() => setModal({ acceso: r })}
-                          style={{ gap: 4, borderColor: "var(--accent)", color: "var(--accent-text)" }}
+                          style={{
+                            ...residentIconButtonStyle,
+                            borderColor: "var(--accent)",
+                            color: "var(--accent-text)",
+                            justifySelf: "start",
+                          }}
+                          title="Habilitar acceso"
+                          aria-label="Habilitar acceso"
                         >
-                          <i className="ti ti-key" /> Habilitar
+                          <i className="ti ti-key" />
                         </button>
                       )}
                     </td>
-                    <td>
+                    <td style={residentNowrapStyle}>
                       <span
                         className={`badge ${r.activo ? "badge-green" : "badge-gray"}`}
                       >
                         {r.activo ? "Activo" : "Inactivo"}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6 }}>
+                    <td className="resident-actions-cell" style={residentNowrapStyle}>
+                      <div className="resident-row-actions">
                         <button
                           type="button"
-                          className="btn btn-sm"
+                          className="btn btn-sm resident-action-btn"
                           onClick={() => setModal({ edit: r })}
-                          style={{ gap: 4 }}
+                          style={residentIconButtonStyle}
+                          title="Editar"
+                          aria-label="Editar"
                         >
-                          <i className="ti ti-pencil" /> Editar
+                          <i className="ti ti-pencil" />
                         </button>
                         <form
                           action={toggleActivoResidente.bind(
@@ -448,8 +510,9 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                         >
                           <button
                             type="submit"
-                            className="btn btn-sm"
+                            className="btn btn-sm resident-action-btn"
                             style={{
+                              ...residentIconButtonStyle,
                               gap: 4,
                               ...(r.activo
                                 ? {
@@ -461,11 +524,29 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                                     color: "var(--accent-text)",
                                   }),
                             }}
+                            title={r.activo ? "Desactivar" : "Activar"}
+                            aria-label={r.activo ? "Desactivar" : "Activar"}
                           >
                             <i
                               className={`ti ${r.activo ? "ti-user-off" : "ti-user-check"}`}
                             />
-                            {r.activo ? "Desactivar" : "Activar"}
+                          </button>
+                        </form>
+                        <form
+                          action={deleteResidente.bind(null, r.id, r.profile_id)}
+                          onSubmit={(e) => {
+                            if (!window.confirm(`¿Borrar definitivamente a ${r.nombre} ${r.apellido}? Esta acción no se puede deshacer.`))
+                              e.preventDefault();
+                          }}
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-sm btn-danger resident-action-btn"
+                            style={residentIconButtonStyle}
+                            title="Borrar"
+                            aria-label="Borrar"
+                          >
+                            <i className="ti ti-trash" />
                           </button>
                         </form>
                       </div>

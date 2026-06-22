@@ -57,3 +57,32 @@ export async function eliminarLote(id: string, _formData: FormData) {
   await supabase.from("lotes").delete().eq("id", id);
   revalidatePath("/lotes");
 }
+
+export async function cargarLotesBonDesti() {
+  const supabase = await createClient();
+  const rangos = [
+    { letra: "C", hasta: 17 },
+    { letra: "D", hasta: 17 },
+    { letra: "E", hasta: 16 },
+    { letra: "F", hasta: 16 },
+  ];
+
+  const lotes = rangos.flatMap(({ letra, hasta }) =>
+    Array.from({ length: hasta }, (_, index) => ({
+      numero: `${letra}-${index + 1}`,
+      estado: "disponible",
+      observaciones: null,
+    })),
+  );
+
+  const { error } = await supabase
+    .from("lotes")
+    .upsert(lotes, { onConflict: "numero", ignoreDuplicates: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/lotes");
+  revalidatePath("/residentes");
+}

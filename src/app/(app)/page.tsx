@@ -74,11 +74,15 @@ export default async function PanelPage() {
         </Link>
         <Link href="/seguridad" className="main-action entry">
           <i className="ti ti-login-2" />
-          <span>INGRESO</span>
+          <span>INGRESO MANUAL</span>
         </Link>
-        <Link href="/qr" className="main-action qr">
+        <Link href="/qr?modo=scan" className="main-action qr">
           <i className="ti ti-qrcode" />
           <span>ESCANEAR QR</span>
+        </Link>
+        <Link href="/qr?modo=token" className="main-action token">
+          <i className="ti ti-key" />
+          <span>INGRESAR TOKEN</span>
         </Link>
       </div>
 

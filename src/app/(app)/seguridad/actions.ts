@@ -72,4 +72,12 @@ export async function registrarEgreso(id: string) {
     .eq("id", id)
     .is("egresado_at", null);
   revalidatePath("/seguridad");
+  revalidatePath("/");
+}
+
+export async function eliminarIngreso(id: string, _formData: FormData) {
+  const supabase = await createClient();
+  await supabase.from("ingresos").delete().eq("id", id);
+  revalidatePath("/seguridad");
+  revalidatePath("/");
 }

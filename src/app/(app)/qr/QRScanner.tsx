@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import jsQR from "jsqr";
 import { validarToken, registrarIngresoQR, type ValidacionQR } from "./actions";
 
-export default function QRScanner() {
+type QRScannerMode = "all" | "scan" | "token";
+
+export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [camActiva, setCamActiva] = useState(false);
   const [tokenManual, setTokenManual] = useState("");
@@ -138,18 +140,22 @@ export default function QRScanner() {
 
   const pase = resultado?.pase;
   const residente = pase?.residente;
+  const showScanner = mode !== "token";
+  const showManualToken = mode !== "scan";
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto" }}>
       {/* Scanner / Cámara */}
       <div className="card" style={{ textAlign: "center" }}>
-        <div className="card-title">Escáner de acceso</div>
+        <div className="card-title">
+          {mode === "token" ? "Ingreso por token" : "Escáner de acceso"}
+        </div>
 
-        {!camActiva ? (
+        {showScanner && (!camActiva ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", padding: "16px 0" }}>
             <i className="ti ti-qrcode" style={{ fontSize: 56, color: "var(--text3)" }} />
             <p style={{ color: "var(--text2)", fontSize: 13, maxWidth: 320 }}>
-              Apuntá la cámara al código QR del residente, o ingresá el token manualmente.
+              Apuntá la cámara al código QR del residente.
             </p>
             <button
               type="button"
@@ -157,7 +163,7 @@ export default function QRScanner() {
               onClick={iniciarCamara}
               style={{ gap: 6 }}
             >
-              <i className="ti ti-camera" /> Activar cámara
+              <i className="ti ti-camera" /> Escanear QR
             </button>
           </div>
         ) : (
@@ -194,26 +200,31 @@ export default function QRScanner() {
               <i className="ti ti-x" /> Detener cámara
             </button>
           </div>
-        )}
+        ))}
 
         {/* Input manual */}
-        <div className="divider" style={{ margin: "16px 0" }} />
+        {showScanner && showManualToken && (
+          <div className="divider" style={{ margin: "16px 0" }} />
+        )}
+        {showManualToken && (
         <form onSubmit={handleManual} style={{ display: "flex", gap: 8 }}>
           <input
             value={tokenManual}
             onChange={(e) => setTokenManual(e.target.value)}
-            placeholder="Pegar token del QR..."
+            placeholder="Ingrese token..."
             style={{ flex: 1 }}
           />
           <button
             type="submit"
             className="btn btn-primary"
             disabled={isPending || !tokenManual.trim()}
-            style={{ gap: 4 }}
+            style={{ gap: 4, whiteSpace: "nowrap" }}
           >
             <i className="ti ti-search" />
+            Ingrese token
           </button>
         </form>
+        )}
       </div>
 
       {/* Resultado */}

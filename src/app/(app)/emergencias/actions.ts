@@ -24,6 +24,25 @@ export async function cambiarEstadoEmergencia(
 
   await supabase.from("emergencias").update(updates).eq("id", id);
   revalidatePath("/emergencias");
+  revalidatePath("/");
+}
+
+export async function eliminarEmergencia(id: string, _formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from("emergencias")
+    .update({
+      estado: "eliminada",
+      atendido_por: user.id,
+      deleted_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  revalidatePath("/emergencias");
+  revalidatePath("/");
 }
 
 export async function crearEmergencia(
@@ -49,5 +68,6 @@ export async function crearEmergencia(
   if (error) return { error: "Error al registrar: " + error.message };
 
   revalidatePath("/emergencias");
+  revalidatePath("/");
   return { success: true };
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ResidenteState = { error?: string; success?: boolean } | null;
@@ -41,5 +42,21 @@ export async function saveResidente(
 export async function toggleActivoResidente(id: string, activo: boolean, _formData: FormData) {
   const supabase = await createClient();
   await supabase.from("residentes").update({ activo: !activo }).eq("id", id);
+  revalidatePath("/residentes");
+}
+
+export async function deleteResidente(id: string, profileId: string | null, _formData: FormData) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("residentes").delete().eq("id", id);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (profileId) {
+    const admin = createAdminClient();
+    await admin.auth.admin.deleteUser(profileId);
+  }
+
   revalidatePath("/residentes");
 }

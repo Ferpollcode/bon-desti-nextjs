@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { compareLotes } from "@/lib/lotes";
 import type { Lote, ResidenteConLote } from "@/lib/types/database";
 import ResidentesManager from "./ResidentesManager";
 
@@ -13,7 +14,7 @@ async function getData(): Promise<{ residentes: ResidenteConLote[]; lotes: Lote[
   ]);
   return {
     residentes: (residentes ?? []) as ResidenteConLote[],
-    lotes: (lotes ?? []) as Lote[],
+    lotes: ((lotes ?? []) as Lote[]).sort(compareLotes),
   };
 }
 

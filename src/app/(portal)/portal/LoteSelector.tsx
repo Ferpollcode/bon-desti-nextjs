@@ -7,9 +7,14 @@ import type { Residente, Lote } from "@/lib/types/database";
 interface Props {
   residentes: (Residente & { lote: Lote | null })[];
   selectedLoteId: string | undefined;
+  basePath?: string;
 }
 
-export default function LoteSelector({ residentes, selectedLoteId }: Props) {
+export default function LoteSelector({
+  residentes,
+  selectedLoteId,
+  basePath = "/portal",
+}: Props) {
   const router = useRouter();
   const [value, setValue] = useState(selectedLoteId ?? "");
 
@@ -17,9 +22,9 @@ export default function LoteSelector({ residentes, selectedLoteId }: Props) {
     const v = e.target.value;
     setValue(v);
     if (v) {
-      router.push(`/portal?lote=${v}`);
+      router.push(`${basePath}?lote=${v}`);
     } else {
-      router.push("/portal");
+      router.push(basePath);
     }
   }
 

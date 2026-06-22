@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import ConfirmActionForm from "@/components/ConfirmActionForm";
 import type { IngresoCompleto, Residente, Lote } from "@/lib/types/database";
 import RegistroIngreso from "./RegistroIngreso";
-import { registrarEgreso } from "./actions";
+import { eliminarIngreso, registrarEgreso } from "./actions";
 
 async function getIngresos(): Promise<IngresoCompleto[]> {
   const supabase = await createClient();
@@ -68,14 +69,14 @@ const tipoBadge: Record<string, string> = {
   residente: "badge-green",
   visitante: "badge-blue",
   personal_obra: "badge-amber",
-  qr: "badge-gray",
+  qr: "badge-blue",
 };
 
 const tipoLabel: Record<string, string> = {
   residente: "Residente",
   visitante: "Visita",
   personal_obra: "Personal obra",
-  qr: "QR",
+  qr: "Visita",
 };
 
 export default async function SeguridadPage() {
@@ -106,9 +107,9 @@ export default async function SeguridadPage() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="table-wrap">
-          <table>
+      <div className="card security-access-card">
+        <div className="table-wrap security-access-wrap">
+          <table className="security-access-table">
             <thead>
               <tr>
                 <th>Hora</th>
@@ -118,7 +119,7 @@ export default async function SeguridadPage() {
                 <th>Vehículo</th>
                 <th>Movimiento</th>
                 <th>Notas</th>
-                <th></th>
+                <th className="security-actions-header">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -139,7 +140,7 @@ export default async function SeguridadPage() {
                     <td style={{ whiteSpace: "nowrap" }}>
                       {formatTs(ingreso.ingresado_at)}
                     </td>
-                    <td>{nombreIngreso(ingreso)}</td>
+                    <td className="security-access-name">{nombreIngreso(ingreso)}</td>
                     <td>
                       <span
                         className={`badge ${tipoBadge[ingreso.tipo] ?? "badge-gray"}`}
@@ -147,10 +148,10 @@ export default async function SeguridadPage() {
                         {tipoLabel[ingreso.tipo] ?? ingreso.tipo}
                       </span>
                     </td>
-                    <td>
+                    <td style={{ whiteSpace: "nowrap" }}>
                       {ingreso.lote ? `Lote ${ingreso.lote.numero}` : "—"}
                     </td>
-                    <td>{ingreso.patente ?? "—"}</td>
+                    <td style={{ whiteSpace: "nowrap" }}>{ingreso.patente ?? "—"}</td>
                     <td>
                       <span
                         className={`badge ${ingreso.egresado_at ? "badge-red" : "badge-green"}`}
@@ -158,7 +159,7 @@ export default async function SeguridadPage() {
                         {ingreso.egresado_at ? "Salida" : "Entrada"}
                       </span>
                     </td>
-                    <td>
+                    <td className="security-access-notes">
                       {ingreso.visitante
                         ? [
                             `${ingreso.visitante.nombre} ${ingreso.visitante.apellido}`,
@@ -166,18 +167,34 @@ export default async function SeguridadPage() {
                           ].filter(Boolean).join(" · ")
                         : (ingreso.notas ?? "—")}
                     </td>
-                    <td>
-                      {!ingreso.egresado_at && (
-                        <form action={registrarEgreso.bind(null, ingreso.id)}>
+                    <td className="security-access-actions">
+                      <div style={{ display: "flex", gap: 6, flexWrap: "nowrap" }}>
+                        {!ingreso.egresado_at && (
+                          <form action={registrarEgreso.bind(null, ingreso.id)}>
+                            <button
+                              type="submit"
+                              className="btn btn-sm security-icon-btn"
+                              title="Registrar egreso"
+                              aria-label="Registrar egreso"
+                            >
+                              <i className="ti ti-door-exit" />
+                            </button>
+                          </form>
+                        )}
+                        <ConfirmActionForm
+                          action={eliminarIngreso.bind(null, ingreso.id)}
+                          message="¿Borrar este ingreso registrado?"
+                        >
                           <button
                             type="submit"
-                            className="btn btn-sm"
-                            style={{ gap: 4, whiteSpace: "nowrap" }}
+                            className="btn btn-sm btn-danger security-icon-btn"
+                            title="Borrar ingreso"
+                            aria-label="Borrar ingreso"
                           >
-                            <i className="ti ti-door-exit" /> Egreso
+                            <i className="ti ti-trash" />
                           </button>
-                        </form>
-                      )}
+                        </ConfirmActionForm>
+                      </div>
                     </td>
                   </tr>
                 ))
