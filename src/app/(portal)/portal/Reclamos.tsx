@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { enviarReclamo, type ReclamoState } from "./actions";
+import { formatDate } from "@/lib/timezone";
 import type { Reclamo } from "@/lib/types/database";
 
 interface Props {
@@ -159,7 +160,11 @@ export default function Reclamos({ residenteId, reclamos }: Props) {
                   </div>
                 )}
                 <div style={{ color: "var(--text3)", fontSize: 11, marginTop: 8 }}>
-                  {new Date(r.created_at).toLocaleDateString("es-AR")} · {r.tipo} →{" "}
+                  {formatDate(r.created_at, {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })} · {r.tipo} →{" "}
                   {r.destinatario}
                 </div>
               </div>

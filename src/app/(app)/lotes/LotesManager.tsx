@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import {
   cargarLotesBonDesti,
@@ -236,9 +237,17 @@ export default function LotesManager({ lotes }: Props) {
                     </td>
                     <td>
                       {lote.residentes.length > 0 ? (
-                        lote.residentes
-                          .map((r) => `${r.nombre} ${r.apellido}`)
-                          .join(", ")
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {lote.residentes.map((r) => (
+                            <Link
+                              key={r.id}
+                              href={`/residentes?residente=${r.id}`}
+                              className="resident-link"
+                            >
+                              {r.nombre} {r.apellido}
+                            </Link>
+                          ))}
+                        </div>
                       ) : (
                         <span style={{ color: "var(--text3)" }}>—</span>
                       )}

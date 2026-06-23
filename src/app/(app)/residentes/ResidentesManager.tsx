@@ -17,6 +17,7 @@ import type { Lote, ResidenteConLote } from "@/lib/types/database";
 interface Props {
   residentes: ResidenteConLote[];
   lotes: Lote[];
+  selectedResidenteId?: string;
 }
 
 const residentActionButtonStyle: CSSProperties = {
@@ -62,6 +63,20 @@ const residentNowrapStyle: CSSProperties = {
   whiteSpace: "nowrap",
   wordBreak: "keep-all",
 };
+
+function phoneDigits(phone: string) {
+  return phone.replace(/\D/g, "");
+}
+
+function phoneCallHref(phone: string) {
+  return `tel:${phone.trim().startsWith("+") ? "+" : ""}${phoneDigits(phone)}`;
+}
+
+function whatsappHref(phone: string) {
+  const digits = phoneDigits(phone).replace(/^0+/, "");
+  const internationalDigits = digits.startsWith("54") ? digits : `549${digits}`;
+  return `https://wa.me/${internationalDigits}`;
+}
 
 function ResidenteFormContent({
   residente,
@@ -316,13 +331,24 @@ function AccesoFormContent({
   );
 }
 
-export default function ResidentesManager({ residentes, lotes }: Props) {
+export default function ResidentesManager({
+  residentes,
+  lotes,
+  selectedResidenteId,
+}: Props) {
   const [modal, setModal] = useState<
     null | "create" | { edit: ResidenteConLote } | { acceso: ResidenteConLote }
   >(null);
 
   const activos = residentes.filter((r) => r.activo);
   const inactivos = residentes.filter((r) => !r.activo);
+
+  useEffect(() => {
+    if (!selectedResidenteId) return;
+    document
+      .getElementById(`residente-${selectedResidenteId}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [selectedResidenteId]);
 
   return (
     <>
@@ -418,6 +444,8 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                 residentes.map((r) => (
                   <tr
                     key={r.id}
+                    id={`residente-${r.id}`}
+                    className={selectedResidenteId === r.id ? "resident-row-selected" : undefined}
                     style={{
                       opacity: r.activo ? 1 : 0.5,
                       ...residentNowrapStyle,
@@ -439,7 +467,39 @@ export default function ResidentesManager({ residentes, lotes }: Props) {
                         {r.tipo === "propietario" ? "Propietario" : "Inquilino"}
                       </span>
                     </td>
-                    <td className="resident-col-phone" style={residentNowrapStyle}>{r.telefono ?? "—"}</td>
+                    <td className="resident-col-phone" style={residentNowrapStyle}>
+                      {r.telefono ? (
+                        <div className="resident-phone-actions">
+                          <a
+                            href={phoneCallHref(r.telefono)}
+                            className="resident-phone-link"
+                            title="Llamar"
+                          >
+                            {r.telefono}
+                          </a>
+                          <a
+                            href={whatsappHref(r.telefono)}
+                            className="resident-phone-btn"
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Enviar WhatsApp"
+                            aria-label={`Enviar WhatsApp a ${r.nombre} ${r.apellido}`}
+                          >
+                            <i className="ti ti-brand-whatsapp" />
+                          </a>
+                          <a
+                            href={phoneCallHref(r.telefono)}
+                            className="resident-phone-btn"
+                            title="Llamar"
+                            aria-label={`Llamar a ${r.nombre} ${r.apellido}`}
+                          >
+                            <i className="ti ti-phone" />
+                          </a>
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="resident-portal-cell" style={residentNowrapStyle}>
                       {r.profile_id ? (
                         <div className="resident-portal-actions">

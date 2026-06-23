@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { endOfLocalDayIso } from "@/lib/timezone";
 
 export type PortalState = { error?: string; success?: boolean } | null;
 export type TokenUnicoState =
@@ -48,9 +49,21 @@ export async function generarTokenUnicoVisita(
   if (!user) return { error: "No autenticado" };
 
   const residente_id = (formData.get("residente_id") as string) || null;
-  const visitante = (formData.get("visitante") as string)?.trim();
-  const documento = (formData.get("documento") as string)?.trim() || null;
+  const visitante =
+    (formData.get("visitante_nombre") as string)?.trim() ||
+    (formData.get("visitante") as string)?.trim();
+  const documento =
+    (formData.get("visitante_documento") as string)?.trim() ||
+    (formData.get("documento") as string)?.trim() ||
+    null;
+  const visitante_telefono = (formData.get("visitante_telefono") as string)?.trim() || null;
+  const motivo = (formData.get("motivo") as string)?.trim() || null;
+  const valido_desde = (formData.get("valido_desde") as string) || null;
   const vence_at = (formData.get("vence_at") as string) || null;
+  const hora_desde = (formData.get("hora_desde") as string) || null;
+  const hora_hasta = (formData.get("hora_hasta") as string) || null;
+  const dias = formData.getAll("dias_habilitados") as string[];
+  const venceHastaFinDelDia = vence_at ? endOfLocalDayIso(vence_at) : null;
 
   if (!residente_id) return { error: "Seleccioná tu casa antes de generar el token" };
   if (!visitante) return { error: "El nombre del visitante es requerido" };
@@ -91,7 +104,13 @@ export async function generarTokenUnicoVisita(
       token,
       visitante_nombre: visitante,
       visitante_documento: documento,
-      vence_at,
+      visitante_telefono,
+      motivo,
+      valido_desde: valido_desde || null,
+      vence_at: venceHastaFinDelDia,
+      hora_desde: hora_desde || null,
+      hora_hasta: hora_hasta || null,
+      dias_habilitados: dias,
       activo: true,
     })
     .select("token, vence_at")
@@ -156,7 +175,7 @@ export async function generarPaseTemporal(
       visitante_telefono,
       motivo,
       valido_desde: valido_desde || null,
-      vence_at: vence_hasta ? new Date(vence_hasta + "T23:59:59").toISOString() : null,
+      vence_at: vence_hasta ? endOfLocalDayIso(vence_hasta) : null,
       hora_desde: hora_desde || null,
       hora_hasta: hora_hasta || null,
       dias_habilitados: dias,

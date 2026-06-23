@@ -27,6 +27,29 @@ export async function cambiarEstadoEmergencia(
   revalidatePath("/");
 }
 
+export async function toggleEmergenciaResuelta(
+  id: string,
+  estadoActual: string,
+  _formData: FormData,
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const estaResuelta = estadoActual === "resuelta";
+  await supabase
+    .from("emergencias")
+    .update({
+      estado: estaResuelta ? "activa" : "resuelta",
+      atendido_por: estaResuelta ? null : user.id,
+      resuelto_at: estaResuelta ? null : new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  revalidatePath("/emergencias");
+  revalidatePath("/");
+}
+
 export async function eliminarEmergencia(id: string, _formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

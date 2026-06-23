@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatTime, startOfLocalDayIso } from "@/lib/timezone";
 import type { IngresoCompleto } from "@/lib/types/database";
 
 async function getIngresosHoy(): Promise<IngresoCompleto[]> {
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
   const { data } = await supabase
     .from("ingresos")
     .select("*, residente:residentes(*), visitante:visitantes(*), lote:lotes(*)")
-    .gte("ingresado_at", today + "T00:00:00")
+    .gte("ingresado_at", startOfLocalDayIso())
     .order("ingresado_at", { ascending: false })
     .limit(20);
   return (data ?? []) as IngresoCompleto[];
@@ -26,7 +26,7 @@ async function getEmergenciasActivas() {
 }
 
 function formatHora(ts: string) {
-  return new Date(ts).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+  return formatTime(ts, { hour: "2-digit", minute: "2-digit" });
 }
 
 function nombreIngreso(ingreso: IngresoCompleto): string {

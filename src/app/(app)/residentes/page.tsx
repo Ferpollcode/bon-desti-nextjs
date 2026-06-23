@@ -18,7 +18,18 @@ async function getData(): Promise<{ residentes: ResidenteConLote[]; lotes: Lote[
   };
 }
 
-export default async function ResidentesPage() {
+export default async function ResidentesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ residente?: string }>;
+}) {
   const { residentes, lotes } = await getData();
-  return <ResidentesManager residentes={residentes} lotes={lotes} />;
+  const { residente } = await searchParams;
+  return (
+    <ResidentesManager
+      residentes={residentes}
+      lotes={lotes}
+      selectedResidenteId={residente}
+    />
+  );
 }

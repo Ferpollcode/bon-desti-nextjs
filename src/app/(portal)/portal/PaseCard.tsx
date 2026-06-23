@@ -3,10 +3,11 @@
 import { useState } from "react";
 import QRDisplay from "@/components/QRDisplay";
 import { desactivarPase } from "./actions";
+import { formatDate as formatDateInAppZone } from "@/lib/timezone";
 import type { PaseQR } from "@/lib/types/database";
 
 function formatFecha(ts: string) {
-  return new Date(ts).toLocaleDateString("es-AR", {
+  return formatDateInAppZone(ts, {
     day: "2-digit",
     month: "2-digit",
     year: "2-digit",

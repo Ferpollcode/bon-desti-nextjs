@@ -1,10 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import ConfirmActionForm from "@/components/ConfirmActionForm";
-import type { EmergenciaCompleta, Lote } from "@/lib/types/database";
+import { formatDateTime } from "@/lib/timezone";
+import type { EmergenciaCompleta, Lote, Residente } from "@/lib/types/database";
 import CrearEmergencia from "./CrearEmergencia";
-import { cambiarEstadoEmergencia, eliminarEmergencia } from "./actions";
+import { eliminarEmergencia, toggleEmergenciaResuelta } from "./actions";
 
-async function getEmergencias(): Promise<EmergenciaCompleta[]> {
+interface EmergenciaConReportante extends EmergenciaCompleta {
+  reportado_por_residente: Residente | null;
+}
+
+async function getEmergencias(): Promise<EmergenciaConReportante[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("emergencias")
@@ -13,7 +18,33 @@ async function getEmergencias(): Promise<EmergenciaCompleta[]> {
     )
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
-  return (data ?? []) as EmergenciaCompleta[];
+  const emergencias = (data ?? []) as EmergenciaCompleta[];
+  const reportadoPorIds = Array.from(
+    new Set(emergencias.map((e) => e.reportado_por).filter(Boolean) as string[]),
+  );
+
+  if (reportadoPorIds.length === 0) {
+    return emergencias.map((e) => ({ ...e, reportado_por_residente: null }));
+  }
+
+  const { data: residentes } = await supabase
+    .from("residentes")
+    .select("*")
+    .in("profile_id", reportadoPorIds);
+
+  const residentePorProfile = new Map(
+    ((residentes ?? []) as Residente[]).map((residente) => [
+      residente.profile_id,
+      residente,
+    ]),
+  );
+
+  return emergencias.map((e) => ({
+    ...e,
+    reportado_por_residente: e.reportado_por
+      ? (residentePorProfile.get(e.reportado_por) ?? null)
+      : null,
+  }));
 }
 
 async function getLotes(): Promise<Lote[]> {
@@ -23,7 +54,7 @@ async function getLotes(): Promise<Lote[]> {
 }
 
 function formatTs(ts: string) {
-  return new Date(ts).toLocaleString("es-AR", {
+  return formatDateTime(ts, {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -44,6 +75,20 @@ const estadoLabel: Record<string, string> = {
   resuelta: "Resuelta",
   eliminada: "Eliminada",
 };
+
+function nombreReportante(e: EmergenciaConReportante) {
+  if (e.reportado_por_profile?.nombre || e.reportado_por_profile?.apellido) {
+    return [e.reportado_por_profile.nombre, e.reportado_por_profile.apellido]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  if (e.reportado_por_residente) {
+    return `${e.reportado_por_residente.nombre} ${e.reportado_por_residente.apellido}`;
+  }
+
+  return "—";
+}
 
 export default async function EmergenciasPage() {
   const [emergencias, lotes] = await Promise.all([
@@ -110,8 +155,8 @@ export default async function EmergenciasPage() {
       </div>
 
       <div className="card">
-        <div className="table-wrap">
-          <table>
+        <div className="table-wrap emergencias-table-wrap">
+          <table className="emergencias-table">
             <thead>
               <tr>
                 <th>Fecha</th>
@@ -141,7 +186,7 @@ export default async function EmergenciasPage() {
                     <td style={{ whiteSpace: "nowrap" }}>
                       {formatTs(e.created_at)}
                     </td>
-                    <td>
+                    <td title={e.descripcion}>
                       <strong>{e.descripcion}</strong>
                     </td>
                     <td>{e.lote ? `Lote ${e.lote.numero}` : "—"}</td>
@@ -152,57 +197,39 @@ export default async function EmergenciasPage() {
                         {estadoLabel[e.estado] ?? e.estado}
                       </span>
                     </td>
-                    <td>{e.reportado_por_profile?.nombre ?? "—"}</td>
+                    <td title={nombreReportante(e)}>{nombreReportante(e)}</td>
                     <td style={{ whiteSpace: "nowrap" }}>
                       {e.resuelto_at ? formatTs(e.resuelto_at) : "—"}
                     </td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {e.estado === "activa" && (
-                          <form
-                            action={cambiarEstadoEmergencia.bind(
-                              null,
-                              e.id,
-                              "en_proceso",
-                            )}
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "nowrap" }}>
+                        <form
+                          action={toggleEmergenciaResuelta.bind(
+                            null,
+                            e.id,
+                            e.estado,
+                          )}
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-sm"
+                            style={{
+                              borderColor:
+                                e.estado === "resuelta" ? "var(--accent)" : "var(--border2)",
+                              color:
+                                e.estado === "resuelta" ? "var(--accent-text)" : "var(--text)",
+                              gap: 4,
+                              whiteSpace: "nowrap",
+                            }}
                           >
-                            <button
-                              type="submit"
-                              className="btn btn-sm"
-                              style={{
-                                borderColor: "var(--warn)",
-                                color: "#ffc27a",
-                                gap: 4,
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <i className="ti ti-eye" /> Atender
-                            </button>
-                          </form>
-                        )}
-                        {(e.estado === "activa" ||
-                          e.estado === "en_proceso") && (
-                          <form
-                            action={cambiarEstadoEmergencia.bind(
-                              null,
-                              e.id,
-                              "resuelta",
-                            )}
-                          >
-                            <button
-                              type="submit"
-                              className="btn btn-sm"
-                              style={{
-                                borderColor: "var(--accent)",
-                                color: "var(--accent-text)",
-                                gap: 4,
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              <i className="ti ti-circle-check" /> Resolver
-                            </button>
-                          </form>
-                        )}
+                            <i
+                              className={`ti ${
+                                e.estado === "resuelta" ? "ti-toggle-right" : "ti-toggle-left"
+                              }`}
+                            />{" "}
+                            Resuelta
+                          </button>
+                        </form>
                         <ConfirmActionForm
                           action={eliminarEmergencia.bind(null, e.id)}
                           message="¿Borrar esta emergencia registrada?"

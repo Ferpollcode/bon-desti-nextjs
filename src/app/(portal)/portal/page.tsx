@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { formatDate } from "@/lib/timezone";
 import type { Comunicacion, Residente, Lote, Reclamo } from "@/lib/types/database";
 import EmergenciaButton from "./EmergenciaButton";
 import LoteSelector from "./LoteSelector";
@@ -48,7 +49,7 @@ async function getReclamos(residenteId: string | null): Promise<Reclamo[]> {
 }
 
 function formatFechaCorta(ts: string) {
-  return new Date(ts).toLocaleDateString("es-AR", {
+  return formatDate(ts, {
     day: "2-digit",
     month: "2-digit",
   });

@@ -36,6 +36,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         >
           {/* Logo card */}
           <div
+            className="login-brand-card"
             style={{
               alignItems: "center",
               background: "linear-gradient(180deg, rgba(22,43,70,0.96), rgba(12,29,51,0.96))",
@@ -50,6 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             }}
           >
             <div
+              className="login-brand-frame"
               style={{
                 border: "2px solid rgba(118,247,194,0.22)",
                 borderRadius: 18,
@@ -60,6 +62,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
             <div style={{ position: "relative", textAlign: "center" }}>
               <div
+                className="login-brand-title"
                 style={{
                   color: "#ffffff",
                   fontFamily: "Georgia, 'Times New Roman', serif",
@@ -71,6 +74,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Bon Desti
               </div>
               <div
+                className="login-brand-subtitle"
                 style={{
                   color: "#b8c6d9",
                   fontFamily: "Georgia, 'Times New Roman', serif",
@@ -90,8 +94,50 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <style>{`
           @media (max-width: 768px) {
+            main {
+              align-items: flex-start !important;
+              min-height: 100svh !important;
+              padding: 10px !important;
+              overflow: hidden !important;
+            }
             .login-shell {
               grid-template-columns: 1fr !important;
+              gap: 10px !important;
+              max-width: 420px !important;
+            }
+            .login-brand-card {
+              min-height: 128px !important;
+              padding: 14px !important;
+              border-radius: 14px !important;
+            }
+            .login-brand-frame {
+              inset: 10px !important;
+              border-radius: 12px !important;
+            }
+            .login-brand-title {
+              font-size: 34px !important;
+            }
+            .login-brand-subtitle {
+              font-size: 14px !important;
+              margin-top: 8px !important;
+              white-space: nowrap !important;
+            }
+            .login-panel {
+              border-radius: 14px !important;
+              padding: 16px !important;
+            }
+            .login-panel h2 {
+              font-size: 24px !important;
+              margin-bottom: 4px !important;
+            }
+            .login-panel p {
+              margin-bottom: 12px !important;
+            }
+            .login-panel input {
+              min-height: 40px !important;
+            }
+            .login-panel button[type="submit"] {
+              min-height: 44px !important;
             }
           }
         `}</style>

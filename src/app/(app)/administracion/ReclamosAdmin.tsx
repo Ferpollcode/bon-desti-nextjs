@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { actualizarReclamo } from "./actions";
+import { formatDate } from "@/lib/timezone";
 import type { ReclamoCompleto } from "@/lib/types/database";
 
 interface Props {
@@ -62,7 +63,11 @@ function ReclamoRow({ reclamo }: { reclamo: ReclamoCompleto }) {
             {reclamo.residente
               ? `${reclamo.residente.nombre} ${reclamo.residente.apellido} · Lote ${reclamo.residente.lote?.numero ?? "—"}`
               : "—"}{" "}
-            · {new Date(reclamo.created_at).toLocaleDateString("es-AR")}
+            · {formatDate(reclamo.created_at, {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
             {" · → "}
             {reclamo.destinatario}
           </div>

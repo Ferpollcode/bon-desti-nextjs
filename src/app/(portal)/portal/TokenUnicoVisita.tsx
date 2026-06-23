@@ -6,15 +6,24 @@ import {
   type TokenUnicoState,
 } from "./actions";
 import QRDisplay from "@/components/QRDisplay";
+import { tomorrowLocalDateString } from "@/lib/timezone";
+
+const DIAS = [
+  { id: "lun", label: "Lun" },
+  { id: "mar", label: "Mar" },
+  { id: "mie", label: "Mié" },
+  { id: "jue", label: "Jue" },
+  { id: "vie", label: "Vie" },
+  { id: "sab", label: "Sáb" },
+  { id: "dom", label: "Dom" },
+];
 
 interface TokenUnicoVisitaProps {
   residenteId: string | null;
 }
 
 function defaultExpiry() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().slice(0, 10);
+  return tomorrowLocalDateString();
 }
 
 export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps) {
@@ -47,9 +56,9 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
 
       <div className="form-row">
         <div className="form-group">
-          <label>Nombre del visitante</label>
+          <label>Nombre del visitante *</label>
           <input
-            name="visitante"
+            name="visitante_nombre"
             type="text"
             placeholder="Nombre y apellido"
             disabled={!residenteId || pending}
@@ -57,9 +66,9 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
           />
         </div>
         <div className="form-group">
-          <label>DNI</label>
+          <label>DNI / CUIL</label>
           <input
-            name="documento"
+            name="visitante_documento"
             type="text"
             inputMode="numeric"
             placeholder="Documento"
@@ -70,7 +79,36 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
 
       <div className="form-row">
         <div className="form-group">
-          <label>Vence</label>
+          <label>Teléfono / WhatsApp</label>
+          <input
+            name="visitante_telefono"
+            type="text"
+            placeholder="Ej: 5492615551234"
+            disabled={!residenteId || pending}
+          />
+        </div>
+        <div className="form-group">
+          <label>Motivo</label>
+          <input
+            name="motivo"
+            type="text"
+            placeholder="Visita, servicio, familiar"
+            disabled={!residenteId || pending}
+          />
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Válido desde</label>
+          <input
+            name="valido_desde"
+            type="date"
+            disabled={!residenteId || pending}
+          />
+        </div>
+        <div className="form-group">
+          <label>Válido hasta</label>
           <input
             name="vence_at"
             type="date"
@@ -78,16 +116,44 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
             disabled={!residenteId || pending}
           />
         </div>
-        <div className="form-group token-action-cell">
-          <button
-            className="btn btn-primary"
-            type="submit"
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Horario desde</label>
+          <input
+            name="hora_desde"
+            type="time"
+            defaultValue="08:00"
             disabled={!residenteId || pending}
-            style={{ gap: 8 }}
-          >
-            <i className="ti ti-key" />
-            {pending ? "Generando..." : "Generar token"}
-          </button>
+          />
+        </div>
+        <div className="form-group">
+          <label>Horario hasta</label>
+          <input
+            name="hora_hasta"
+            type="time"
+            defaultValue="22:00"
+            disabled={!residenteId || pending}
+          />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Días habilitados</label>
+        <div className="days-grid">
+          {DIAS.map((d) => (
+            <label key={d.id} className="day-check">
+              <input
+                type="checkbox"
+                name="dias_habilitados"
+                value={d.id}
+                defaultChecked={!["sab", "dom"].includes(d.id)}
+                disabled={!residenteId || pending}
+              />
+              {d.label}
+            </label>
+          ))}
         </div>
       </div>
 
@@ -128,6 +194,16 @@ export default function TokenUnicoVisita({ residenteId }: TokenUnicoVisitaProps)
           />
         </div>
       )}
+
+      <button
+        className="btn btn-primary"
+        type="submit"
+        disabled={!residenteId || pending}
+        style={{ gap: 8, marginTop: 12 }}
+      >
+        <i className="ti ti-key" />
+        {pending ? "Generando..." : "Generar token"}
+      </button>
     </form>
   );
 }

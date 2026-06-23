@@ -8,6 +8,7 @@ import {
   toggleActivoPersonal,
   type ObraState,
 } from "./actions";
+import { formatDate as formatDateInAppZone } from "@/lib/timezone";
 import type { Lote, Obra, PersonalObra } from "@/lib/types/database";
 
 interface ObraCompleta extends Obra {
@@ -369,7 +370,7 @@ function PersonalFormContent({
 
 function formatFecha(fecha: string | null) {
   if (!fecha) return "—";
-  return new Date(fecha).toLocaleDateString("es-AR", {
+  return formatDateInAppZone(fecha, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

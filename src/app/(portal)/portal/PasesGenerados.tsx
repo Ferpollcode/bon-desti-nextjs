@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatDate as formatDateInAppZone } from "@/lib/timezone";
 import type { PaseQR } from "@/lib/types/database";
 import { desactivarPase } from "./actions";
 import PaseCard from "./PaseCard";
@@ -19,7 +20,7 @@ async function getPases(residenteId: string): Promise<PaseQR[]> {
 }
 
 function formatFecha(ts: string) {
-  return new Date(ts).toLocaleDateString("es-AR", {
+  return formatDateInAppZone(ts, {
     day: "2-digit",
     month: "2-digit",
     year: "2-digit",

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ConfirmActionForm from "@/components/ConfirmActionForm";
+import { formatDateTime, startOfLocalDayIso } from "@/lib/timezone";
 import type { IngresoCompleto, Residente, Lote } from "@/lib/types/database";
 import RegistroIngreso from "./RegistroIngreso";
 import { eliminarIngreso, registrarEgreso } from "./actions";
@@ -16,15 +17,15 @@ async function getIngresos(): Promise<IngresoCompleto[]> {
 
 async function getStatsHoy() {
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const todayStart = startOfLocalDayIso();
   const { count: entradas } = await supabase
     .from("ingresos")
     .select("*", { count: "exact", head: true })
-    .gte("ingresado_at", today + "T00:00:00");
+    .gte("ingresado_at", todayStart);
   const { count: dentro } = await supabase
     .from("ingresos")
     .select("*", { count: "exact", head: true })
-    .gte("ingresado_at", today + "T00:00:00")
+    .gte("ingresado_at", todayStart)
     .is("egresado_at", null);
   return { entradas: entradas ?? 0, dentro: dentro ?? 0 };
 }
@@ -49,7 +50,7 @@ async function getResidentesYLotes(): Promise<{
 }
 
 function formatTs(ts: string) {
-  return new Date(ts).toLocaleString("es-AR", {
+  return formatDateTime(ts, {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",

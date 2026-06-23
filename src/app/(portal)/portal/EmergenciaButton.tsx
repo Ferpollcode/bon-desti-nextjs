@@ -96,8 +96,17 @@ function EmergenciaForm({
         <p style={{ color: "#ff9aa3", fontWeight: 700, marginBottom: 12 }}>
           ¿Confirmás la emergencia? Seguridad será alertada de inmediato.
         </p>
-        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-          <form action={formAction}>
+        <form action={formAction}>
+          <div className="form-group" style={{ marginBottom: 12, textAlign: "left" }}>
+            <label>Mensaje para seguridad</label>
+            <textarea
+              name="descripcion"
+              rows={3}
+              placeholder="Ej: Necesito asistencia en la casa, ruido sospechoso, persona en el ingreso..."
+              disabled={pending}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
             {loteId && (
               <input type="hidden" name="lote_id" value={loteId} />
             )}
@@ -110,15 +119,16 @@ function EmergenciaForm({
               <i className="ti ti-alert-triangle" />
               {pending ? "Enviando..." : "Sí, confirmar emergencia"}
             </button>
-          </form>
           <button
             type="button"
             className="btn"
             onClick={() => setConfirmando(false)}
+            disabled={pending}
           >
             Cancelar
           </button>
-        </div>
+          </div>
+        </form>
         {state?.error && (
           <p style={{ color: "var(--danger)", fontSize: 13, marginTop: 8 }}>
             {state.error}

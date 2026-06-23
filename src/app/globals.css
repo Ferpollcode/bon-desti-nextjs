@@ -387,6 +387,47 @@ textarea { resize: vertical; min-height: 70px; }
 
 /* ── Tables ── */
 .table-wrap { overflow-x: auto; max-width: 100%; }
+
+.emergencias-table-wrap {
+  overflow-x: hidden;
+}
+
+.emergencias-table {
+  font-size: 12px;
+  table-layout: fixed;
+}
+
+.emergencias-table th,
+.emergencias-table td {
+  overflow: hidden;
+  padding: 7px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emergencias-table th:nth-child(1),
+.emergencias-table td:nth-child(1) { width: 9%; }
+.emergencias-table th:nth-child(2),
+.emergencias-table td:nth-child(2) { width: 26%; }
+.emergencias-table th:nth-child(3),
+.emergencias-table td:nth-child(3) { width: 8%; }
+.emergencias-table th:nth-child(4),
+.emergencias-table td:nth-child(4) { width: 8%; }
+.emergencias-table th:nth-child(5),
+.emergencias-table td:nth-child(5) { width: 19%; }
+.emergencias-table th:nth-child(6),
+.emergencias-table td:nth-child(6) { width: 12%; }
+.emergencias-table th:nth-child(7),
+.emergencias-table td:nth-child(7) {
+  overflow: visible;
+  width: 18%;
+}
+
+.emergencias-table .btn-sm {
+  font-size: 11px;
+  min-height: 32px;
+  padding: 4px 9px;
+}
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th {
   text-align: left;
@@ -411,21 +452,24 @@ th, td { min-width: 0; }
   width: 100%;
 }
 .residentes-table th:nth-child(1),
-.residentes-table td:nth-child(1) { width: 20%; }
+.residentes-table td:nth-child(1) { width: 18%; }
 .residentes-table th:nth-child(2),
-.residentes-table td:nth-child(2) { width: 9%; }
+.residentes-table td:nth-child(2) { width: 8%; }
 .residentes-table th:nth-child(3),
-.residentes-table td:nth-child(3) { width: 10%; }
+.residentes-table td:nth-child(3) { width: 9%; }
 .residentes-table th:nth-child(4),
 .residentes-table td:nth-child(4) { display: none; }
 .residentes-table th:nth-child(5),
-.residentes-table td:nth-child(5) { width: 16%; }
+.residentes-table td:nth-child(5) {
+  overflow: visible;
+  width: 24%;
+}
 .residentes-table th:nth-child(6),
 .residentes-table td:nth-child(6) { width: 13%; }
 .residentes-table th:nth-child(7),
 .residentes-table td:nth-child(7) { width: 8%; }
 .residentes-table th:nth-child(8),
-.residentes-table td:nth-child(8) { width: 14%; }
+.residentes-table td:nth-child(8) { width: 20%; }
 .residentes-table th,
 .residentes-table td {
   overflow: hidden;
@@ -479,6 +523,87 @@ th, td { min-width: 0; }
 }
 .resident-row-actions {
   flex-wrap: nowrap;
+}
+.resident-link {
+  color: var(--text);
+  font-weight: 800;
+  text-decoration: none;
+}
+.resident-link:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+.resident-row-selected td {
+  background: rgba(0, 182, 122, 0.16) !important;
+}
+.resident-phone-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  max-width: none;
+}
+.resident-phone-link {
+  color: var(--text);
+  font-weight: 800;
+  overflow: visible;
+  text-decoration: none;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+.resident-phone-link:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+.resident-phone-btn {
+  align-items: center;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--accent-text);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 28px;
+  justify-content: center;
+  text-decoration: none;
+  width: 28px;
+}
+.resident-phone-btn:hover {
+  background: var(--accent-bg);
+  border-color: rgba(118, 247, 194, 0.38);
+}
+.link-button {
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0;
+  text-align: left;
+}
+.link-button:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
+}
+.pass-detail-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+.pass-detail-grid > div {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.pass-detail-grid span {
+  color: var(--text3);
+  display: block;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.pass-detail-grid strong {
+  color: var(--text);
+  font-size: 13px;
 }
 .residentes-table .resident-action-btn {
   align-items: center;
@@ -594,10 +719,21 @@ th, td { min-width: 0; }
   .residentes-table {
     min-width: 0;
   }
-  .residentes-table .resident-col-dni,
-  .residentes-table .resident-col-phone {
+  .residentes-table .resident-col-dni {
     display: none;
   }
+  .residentes-table th:nth-child(1),
+  .residentes-table td:nth-child(1) { width: 20%; }
+  .residentes-table th:nth-child(3),
+  .residentes-table td:nth-child(3) { width: 10%; }
+  .residentes-table th:nth-child(5),
+  .residentes-table td:nth-child(5) { width: 28%; }
+  .residentes-table th:nth-child(6),
+  .residentes-table td:nth-child(6) { width: 14%; }
+  .residentes-table th:nth-child(7),
+  .residentes-table td:nth-child(7) { width: 8%; }
+  .residentes-table th:nth-child(8),
+  .residentes-table td:nth-child(8) { width: 20%; }
 }
 
 /* ── Badges ── */
@@ -1310,8 +1446,8 @@ th, td { min-width: 0; }
   .owner-emergency-card { grid-template-columns: 1fr; }
   .dashboard-panels, .security-grid { grid-template-columns: 1fr; }
   .searchbar { display: grid; grid-template-columns: 1fr; }
-  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); margin: 0 -2px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { min-width: 760px; }
+  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); margin: 0 -2px; overflow-x: visible; -webkit-overflow-scrolling: touch; }
+  table { min-width: 0; }
   th, td { padding: 10px; }
   .btn, input, select, textarea { min-height: 44px; }
   .btn-sm { min-height: 36px; padding: 7px 10px; }
@@ -1359,7 +1495,7 @@ th, td { min-width: 0; }
   .access-entry { display: grid; grid-template-columns: auto minmax(0, 1fr); }
   .access-time { grid-column: 2; text-align: left; }
   .table-wrap { margin-left: -4px; margin-right: -4px; }
-  table { min-width: 620px; }
+  table { min-width: 0; }
   th, td { padding: 9px 8px; }
   .form-row, .form-row-3, .security-grid { grid-template-columns: 1fr; }
   .section-actions, .searchbar { align-items: stretch; flex-direction: column; }
@@ -1405,4 +1541,135 @@ th, td { min-width: 0; }
   .page-header { display: grid; grid-template-columns: 1fr; }
   .page-header .btn { justify-content: center; width: 100%; }
   .stats-grid, .system-overview { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .table-wrap {
+    border: 0;
+    margin-left: 0;
+    margin-right: 0;
+    overflow: visible;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+    width: 100% !important;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  tr {
+    background: rgba(15, 33, 56, 0.86);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  td {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    min-height: 38px;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    padding: 9px 10px !important;
+    text-align: right;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  td:last-child {
+    border-bottom: 0;
+  }
+
+  td::before {
+    color: var(--accent-text);
+    content: "";
+    flex: 0 0 42%;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  td > * {
+    max-width: 58%;
+  }
+
+  .residentes-table td:nth-child(1)::before { content: "Nombre"; }
+  .residentes-table td:nth-child(2)::before { content: "DNI"; }
+  .residentes-table td:nth-child(3)::before { content: "Lote"; }
+  .residentes-table td:nth-child(4)::before { content: "Tipo"; }
+  .residentes-table td:nth-child(5)::before { content: "Telefono"; }
+  .residentes-table td:nth-child(6)::before { content: "Portal"; }
+  .residentes-table td:nth-child(7)::before { content: "Estado"; }
+  .residentes-table td:nth-child(8)::before { content: "Acciones"; }
+
+  .security-access-table td:nth-child(1)::before { content: "Hora"; }
+  .security-access-table td:nth-child(2)::before { content: "Nombre"; }
+  .security-access-table td:nth-child(3)::before { content: "Tipo"; }
+  .security-access-table td:nth-child(4)::before { content: "Lote"; }
+  .security-access-table td:nth-child(5)::before { content: "Vehiculo"; }
+  .security-access-table td:nth-child(6)::before { content: "Movimiento"; }
+  .security-access-table td:nth-child(7)::before { content: "Notas"; }
+  .security-access-table td:nth-child(8)::before { content: "Acciones"; }
+
+  .emergencias-table td:nth-child(1)::before { content: "Fecha"; }
+  .emergencias-table td:nth-child(2)::before { content: "Descripcion"; }
+  .emergencias-table td:nth-child(3)::before { content: "Lote"; }
+  .emergencias-table td:nth-child(4)::before { content: "Estado"; }
+  .emergencias-table td:nth-child(5)::before { content: "Reportado por"; }
+  .emergencias-table td:nth-child(6)::before { content: "Resuelto"; }
+  .emergencias-table td:nth-child(7)::before { content: "Acciones"; }
+
+  .residentes-table .resident-col-dni,
+  .residentes-table .resident-col-phone,
+  .residentes-table .resident-col-lote,
+  .residentes-table .resident-col-type {
+    display: flex;
+  }
+
+  .resident-phone-actions,
+  .resident-portal-actions,
+  .resident-row-actions,
+  .security-access-actions > div {
+    flex-wrap: wrap !important;
+    justify-content: flex-end;
+    max-width: 58%;
+  }
+
+  .resident-phone-link {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .residentes-table .resident-action-btn,
+  .security-icon-btn {
+    min-width: 36px !important;
+    width: 36px !important;
+  }
+
+  .pass-detail-grid,
+  .form-row,
+  .form-row-3,
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
 }

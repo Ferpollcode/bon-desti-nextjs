@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/dal/auth";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateTime, startOfLocalDayIso } from "@/lib/timezone";
 import type {
   Comunicacion,
   IngresoCompleto,
@@ -20,7 +21,7 @@ interface ComunicacionConResidente extends Comunicacion {
 
 async function getStats() {
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const todayStart = startOfLocalDayIso();
 
   const [
     { count: ingresosHoy },
@@ -34,12 +35,12 @@ async function getStats() {
     supabase
       .from("ingresos")
       .select("*", { count: "exact", head: true })
-      .gte("ingresado_at", today + "T00:00:00"),
+      .gte("ingresado_at", todayStart),
     supabase
       .from("ingresos")
       .select("*", { count: "exact", head: true })
       .eq("tipo", "visitante")
-      .gte("ingresado_at", today + "T00:00:00"),
+      .gte("ingresado_at", todayStart),
     supabase
       .from("ingresos")
       .select("*", { count: "exact", head: true })
@@ -117,7 +118,7 @@ async function getComunicaciones(): Promise<ComunicacionConResidente[]> {
 }
 
 function formatTs(ts: string) {
-  return new Date(ts).toLocaleString("es-AR", {
+  return formatDateTime(ts, {
     day: "2-digit",
     month: "2-digit",
     year: "2-digit",

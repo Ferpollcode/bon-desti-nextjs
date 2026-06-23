@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -14,13 +15,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={inter.variable}>
       <head>
         <link rel="stylesheet" href="/legacy/assets/vendor/tabler-icons/tabler-icons.min.css" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem('gd_theme')==='light')document.documentElement.dataset.theme='light'}catch{}`,
-          }}
-        />
       </head>
       <body>{children}</body>
+      <Script id="theme-init" strategy="beforeInteractive">
+        {`try{if(localStorage.getItem('gd_theme')==='light')document.documentElement.dataset.theme='light'}catch{}`}
+      </Script>
     </html>
   );
 }

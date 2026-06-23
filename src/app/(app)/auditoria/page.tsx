@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatDateTime } from "@/lib/timezone";
 import type { AuditLog } from "@/lib/types/database";
 
 async function getLogs(): Promise<AuditLog[]> {
@@ -12,7 +13,7 @@ async function getLogs(): Promise<AuditLog[]> {
 }
 
 function formatTs(ts: string) {
-  return new Date(ts).toLocaleString("es-AR", {
+  return formatDateTime(ts, {
     day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
   });
 }

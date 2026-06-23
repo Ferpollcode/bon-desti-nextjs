@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import jsQR from "jsqr";
-import { validarToken, registrarIngresoQR, type ValidacionQR } from "./actions";
+import {
+  validarToken,
+  registrarIngresoQR,
+  type RegistroQRResult,
+  type ValidacionQR,
+} from "./actions";
 
 type QRScannerMode = "all" | "scan" | "token";
 
@@ -11,7 +16,7 @@ export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
   const [camActiva, setCamActiva] = useState(false);
   const [tokenManual, setTokenManual] = useState("");
   const [resultado, setResultado] = useState<ValidacionQR | null>(null);
-  const [registrado, setRegistrado] = useState(false);
+  const [registrado, setRegistrado] = useState<RegistroQRResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const streamRef = useRef<MediaStream | null>(null);
   const animRef = useRef<number>(0);
@@ -111,7 +116,7 @@ export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
 
   async function procesarToken(token: string) {
     setResultado(null);
-    setRegistrado(false);
+    setRegistrado(null);
     startTransition(async () => {
       const res = await validarToken(token);
       setResultado(res);
@@ -127,19 +132,25 @@ export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
     if (!resultado?.pase) return;
     startTransition(async () => {
       const fd = new FormData();
-      await registrarIngresoQR(resultado.pase!.id, esEgreso, fd);
-      setRegistrado(true);
+      const registro = await registrarIngresoQR(resultado.pase!.id, esEgreso, fd);
+      setRegistrado(registro);
     });
   }
 
   function reiniciar() {
     setResultado(null);
-    setRegistrado(false);
+    setRegistrado(null);
     setTokenManual("");
   }
 
   const pase = resultado?.pase;
   const residente = pase?.residente;
+  const nombreIngresante =
+    pase?.tipo === "temporal" || pase?.tipo === "unico_uso"
+      ? (pase.visitante_nombre ?? "Visitante")
+      : residente
+        ? `${residente.nombre} ${residente.apellido}`
+        : "Residente";
   const showScanner = mode !== "token";
   const showManualToken = mode !== "scan";
 
@@ -280,11 +291,7 @@ export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
             </div>
             <div>
               <div style={{ fontWeight: 800, fontSize: 18 }}>
-                {pase.tipo === "temporal" && pase.visitante_nombre
-                  ? pase.visitante_nombre
-                  : residente
-                    ? `${residente.nombre} ${residente.apellido}`
-                    : "Residente"}
+                {nombreIngresante}
               </div>
               {pase.tipo === "temporal"
                 ? residente && (
@@ -372,6 +379,10 @@ export default function QRScanner({ mode = "all" }: { mode?: QRScannerMode }) {
             style={{ color: "var(--accent)", fontSize: 48, marginBottom: 8 }}
           />
           <div style={{ fontWeight: 700, fontSize: 18 }}>¡Acceso registrado!</div>
+          <div style={{ color: "var(--text2)", fontSize: 14, marginTop: 4 }}>
+            {registrado.movimiento === "salida" ? "Salida" : "Entrada"}:{" "}
+            <strong style={{ color: "var(--text)" }}>{registrado.nombre}</strong>
+          </div>
           <button
             type="button"
             className="btn btn-primary"
