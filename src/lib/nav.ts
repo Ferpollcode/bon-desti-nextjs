@@ -7,46 +7,46 @@ export interface NavItem {
   mobileLabel?: string;
 }
 
-// Primeros 4 = bottom bar fija; el resto va en el panel "Más"
+// Primeros 4 = bottom bar fija; el resto va en el panel "Mas"
 const navByRol: Record<Rol, NavItem[]> = {
   seguridad: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
     { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
     { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    // — panel "Más" —
+    // panel "Mas"
     { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
-    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
-    { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
+    { href: "/administracion", label: "Administracion", icon: "ti-speakerphone", mobileLabel: "Admin" },
+    { href: "/auditoria", label: "Auditoria", icon: "ti-clipboard-list" },
   ],
   admin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
     { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
     { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    // — panel "Más" —
+    // panel "Mas"
     { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
-    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
-    { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
+    { href: "/administracion", label: "Administracion", icon: "ti-speakerphone", mobileLabel: "Admin" },
+    { href: "/auditoria", label: "Auditoria", icon: "ti-clipboard-list" },
   ],
   superadmin: [
     { href: "/", label: "Principal", icon: "ti-home", mobileLabel: "Inicio" },
     { href: "/seguridad", label: "Ingresos", icon: "ti-door-enter" },
-    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
+    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
     { href: "/emergencias", label: "Emergencias", icon: "ti-alert-triangle" },
-    // — panel "Más" —
+    // panel "Mas"
     { href: "/visitantes", label: "Visitantes", icon: "ti-user-check" },
     { href: "/residentes", label: "Residentes", icon: "ti-users" },
-    { href: "/lotes", label: "Lotes", icon: "ti-building-community" },
+    { href: "/qr", label: "QR / Pases", icon: "ti-qrcode", mobileLabel: "QR" },
     { href: "/obras", label: "Obras", icon: "ti-tool" },
-    { href: "/administracion", label: "Administración", icon: "ti-speakerphone", mobileLabel: "Admin" },
-    { href: "/auditoria", label: "Auditoría", icon: "ti-clipboard-list" },
+    { href: "/administracion", label: "Administracion", icon: "ti-speakerphone", mobileLabel: "Admin" },
+    { href: "/auditoria", label: "Auditoria", icon: "ti-clipboard-list" },
   ],
   residente: [
     { href: "/", label: "Mi Lote", icon: "ti-home", mobileLabel: "Mi Lote" },
@@ -59,7 +59,6 @@ const navByRol: Record<Rol, NavItem[]> = {
 export function getNavItems(rol: Rol): NavItem[] {
   return navByRol[rol] ?? navByRol.seguridad;
 }
-
 
 export function isNavActive(href: string, pathname: string): boolean {
   if (href === "/") return pathname === "/";

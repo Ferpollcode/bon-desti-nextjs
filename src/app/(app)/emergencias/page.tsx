@@ -3,6 +3,7 @@ import ConfirmActionForm from "@/components/ConfirmActionForm";
 import { formatDateTime } from "@/lib/timezone";
 import type { EmergenciaCompleta, Lote, Residente } from "@/lib/types/database";
 import CrearEmergencia from "./CrearEmergencia";
+import EmergencyAlarm from "./EmergencyAlarm";
 import { eliminarEmergencia, toggleEmergenciaResuelta } from "./actions";
 
 interface EmergenciaConReportante extends EmergenciaCompleta {
@@ -110,6 +111,8 @@ export default async function EmergenciasPage() {
         <CrearEmergencia lotes={lotes} />
       </div>
 
+      <EmergencyAlarm active={activas.length > 0} />
+
       {activas.length > 0 && (
         <div className="emergency-panel" style={{ marginBottom: 24 }}>
           <div className="emergency-title">
@@ -128,6 +131,13 @@ export default async function EmergenciasPage() {
               <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>
                 {formatTs(e.created_at)}
               </div>
+              <a
+                className="btn btn-sm btn-danger call-911-link"
+                href="tel:911"
+                style={{ marginTop: 8, gap: 4 }}
+              >
+                <i className="ti ti-phone-call" /> Llamar 911
+              </a>
             </div>
           ))}
         </div>
@@ -203,6 +213,15 @@ export default async function EmergenciasPage() {
                     </td>
                     <td style={{ whiteSpace: "nowrap" }}>
                       <div style={{ display: "flex", gap: 6, flexWrap: "nowrap" }}>
+                        {e.estado !== "resuelta" && (
+                          <a
+                            className="btn btn-sm btn-danger call-911-link"
+                            href="tel:911"
+                            style={{ gap: 4, whiteSpace: "nowrap" }}
+                          >
+                            <i className="ti ti-phone-call" /> 911
+                          </a>
+                        )}
                         <form
                           action={toggleEmergenciaResuelta.bind(
                             null,

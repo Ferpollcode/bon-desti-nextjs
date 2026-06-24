@@ -15,11 +15,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={inter.variable}>
       <head>
         <link rel="stylesheet" href="/legacy/assets/vendor/tabler-icons/tabler-icons.min.css" />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`try{if(localStorage.getItem('gd_theme')==='light')document.documentElement.dataset.theme='light'}catch{}`}
+        </Script>
       </head>
       <body>{children}</body>
-      <Script id="theme-init" strategy="beforeInteractive">
-        {`try{if(localStorage.getItem('gd_theme')==='light')document.documentElement.dataset.theme='light'}catch{}`}
-      </Script>
     </html>
   );
 }

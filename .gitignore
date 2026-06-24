@@ -29,9 +29,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+dev-server-*.log
+cookies.txt
 
 # env files (can opt-in for committing if needed)
 .env*
+env.download
+
+# local exported/legacy app copy
+/BON DESTI/
 
 # vercel
 .vercel
