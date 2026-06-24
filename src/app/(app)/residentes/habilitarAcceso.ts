@@ -6,11 +6,21 @@ import { createClient } from "@/lib/supabase/server";
 
 export type AccesoState = { error?: string; success?: boolean; usuario?: string } | null;
 
+async function canManageResidentAccess() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return Boolean(user) && user?.app_metadata?.rol !== "seguridad";
+}
+
 export async function habilitarAccesoPortal(
   residenteId: string,
   _prev: AccesoState,
   formData: FormData,
 ): Promise<AccesoState> {
+  if (!(await canManageResidentAccess())) {
+    return { error: "Seguridad no puede modificar accesos de residentes" };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
@@ -66,6 +76,10 @@ export async function habilitarAccesoPortal(
 }
 
 export async function revocarAccesoPortal(residenteId: string, profileId: string, _formData: FormData) {
+  if (!(await canManageResidentAccess())) {
+    throw new Error("Seguridad no puede modificar accesos de residentes");
+  }
+
   const admin = createAdminClient();
 
   // Desvincular primero

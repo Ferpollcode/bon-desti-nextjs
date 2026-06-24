@@ -12,11 +12,12 @@ import {
   revocarAccesoPortal,
   type AccesoState,
 } from "./habilitarAcceso";
-import type { Lote, ResidenteConLote } from "@/lib/types/database";
+import type { Lote, ResidenteConLote, Rol } from "@/lib/types/database";
 
 interface Props {
   residentes: ResidenteConLote[];
   lotes: Lote[];
+  rol: Rol;
   selectedResidenteId?: string;
 }
 
@@ -334,8 +335,10 @@ function AccesoFormContent({
 export default function ResidentesManager({
   residentes,
   lotes,
+  rol,
   selectedResidenteId,
 }: Props) {
+  const canManage = rol !== "seguridad";
   const [modal, setModal] = useState<
     null | "create" | { edit: ResidenteConLote } | { acceso: ResidenteConLote }
   >(null);
@@ -349,6 +352,140 @@ export default function ResidentesManager({
       .getElementById(`residente-${selectedResidenteId}`)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [selectedResidenteId]);
+
+  if (!canManage) {
+    return (
+      <>
+        <div className="page-header">
+          <div>
+            <div className="page-title">Residentes</div>
+            <div className="page-sub">Consulta de personas que viven en el barrio</div>
+          </div>
+        </div>
+
+        <div className="stats-grid">
+          <div className="stat green">
+            <div className="stat-label">Total residentes</div>
+            <div className="stat-value">{residentes.length}</div>
+          </div>
+          <div className="stat blue">
+            <div className="stat-label">Activos</div>
+            <div className="stat-value">{activos.length}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-label">Inactivos</div>
+            <div className="stat-value">{inactivos.length}</div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="table-wrap">
+            <table className="residentes-table" style={residentNowrapStyle}>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th className="resident-col-dni">DNI</th>
+                  <th className="resident-col-lote">Lote</th>
+                  <th className="resident-col-type">Tipo</th>
+                  <th className="resident-col-phone">Telefono</th>
+                  <th>Portal</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {residentes.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>
+                      <div className="empty">
+                        <div className="empty-icon">
+                          <i className="ti ti-users" />
+                        </div>
+                        Sin residentes registrados
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  residentes.map((r) => (
+                    <tr
+                      key={r.id}
+                      id={`residente-${r.id}`}
+                      className={selectedResidenteId === r.id ? "resident-row-selected" : undefined}
+                      style={{
+                        opacity: r.activo ? 1 : 0.5,
+                        ...residentNowrapStyle,
+                      }}
+                    >
+                      <td style={residentNowrapStyle}>
+                        <strong>
+                          {r.apellido}, {r.nombre}
+                        </strong>
+                      </td>
+                      <td className="resident-col-dni" style={residentNowrapStyle}>{r.dni ?? "-"}</td>
+                      <td className="resident-col-lote" style={residentNowrapStyle}>
+                        {r.lote ? `Lote ${r.lote.numero}` : "-"}
+                      </td>
+                      <td className="resident-col-type" style={residentNowrapStyle}>
+                        <span
+                          className={`badge ${r.tipo === "propietario" ? "badge-green" : "badge-blue"}`}
+                        >
+                          {r.tipo === "propietario" ? "Propietario" : "Inquilino"}
+                        </span>
+                      </td>
+                      <td className="resident-col-phone" style={residentNowrapStyle}>
+                        {r.telefono ? (
+                          <div className="resident-phone-actions">
+                            <a
+                              href={phoneCallHref(r.telefono)}
+                              className="resident-phone-link"
+                              title="Llamar"
+                            >
+                              {r.telefono}
+                            </a>
+                            <a
+                              href={whatsappHref(r.telefono)}
+                              className="resident-phone-btn"
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Enviar WhatsApp"
+                              aria-label={`Enviar WhatsApp a ${r.nombre} ${r.apellido}`}
+                            >
+                              <i className="ti ti-brand-whatsapp" />
+                            </a>
+                            <a
+                              href={phoneCallHref(r.telefono)}
+                              className="resident-phone-btn"
+                              title="Llamar"
+                              aria-label={`Llamar a ${r.nombre} ${r.apellido}`}
+                            >
+                              <i className="ti ti-phone" />
+                            </a>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td className="resident-portal-cell" style={residentNowrapStyle}>
+                        <span className={`badge ${r.profile_id ? "badge-green" : "badge-gray"}`}>
+                          {r.profile_id ? "Habilitado" : "Sin acceso"}
+                        </span>
+                      </td>
+                      <td style={residentNowrapStyle}>
+                        <span
+                          className={`badge ${r.activo ? "badge-green" : "badge-gray"}`}
+                        >
+                          {r.activo ? "Activo" : "Inactivo"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -386,14 +523,16 @@ export default function ResidentesManager({
           <div className="page-title">Residentes</div>
           <div className="page-sub">Alta y gestión de personas que viven en el barrio</div>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setModal("create")}
-          style={{ gap: 6 }}
-        >
-          <i className="ti ti-user-plus" /> Nuevo residente
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setModal("create")}
+            style={{ gap: 6 }}
+          >
+            <i className="ti ti-user-plus" /> Nuevo residente
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -425,13 +564,13 @@ export default function ResidentesManager({
                 <th className="resident-col-phone">Teléfono</th>
                 <th>Portal</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                {canManage && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {residentes.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={canManage ? 8 : 7}>
                     <div className="empty">
                       <div className="empty-icon">
                         <i className="ti ti-users" />

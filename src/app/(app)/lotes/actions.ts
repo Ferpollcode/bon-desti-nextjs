@@ -5,11 +5,21 @@ import { createClient } from "@/lib/supabase/server";
 
 export type LoteState = { error?: string; success?: boolean } | null;
 
+async function canManageLotes() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return Boolean(user) && user?.app_metadata?.rol !== "seguridad";
+}
+
 export async function saveLote(
   id: string | null,
   _prev: LoteState,
   formData: FormData,
 ): Promise<LoteState> {
+  if (!(await canManageLotes())) {
+    return { error: "Seguridad no puede editar lotes" };
+  }
+
   const supabase = await createClient();
   const numero = (formData.get("numero") as string)?.trim();
   const estado = (formData.get("estado") as string) || "sin_datos";
@@ -39,12 +49,20 @@ export async function cambiarEstadoLote(
   estado: string,
   _formData: FormData,
 ) {
+  if (!(await canManageLotes())) {
+    throw new Error("Seguridad no puede editar lotes");
+  }
+
   const supabase = await createClient();
   await supabase.from("lotes").update({ estado }).eq("id", id);
   revalidatePath("/lotes");
 }
 
 export async function eliminarLote(id: string, _formData: FormData) {
+  if (!(await canManageLotes())) {
+    throw new Error("Seguridad no puede borrar lotes");
+  }
+
   const supabase = await createClient();
   const { count } = await supabase
     .from("residentes")
@@ -59,6 +77,10 @@ export async function eliminarLote(id: string, _formData: FormData) {
 }
 
 export async function cargarLotesBonDesti() {
+  if (!(await canManageLotes())) {
+    throw new Error("Seguridad no puede editar lotes");
+  }
+
   const supabase = await createClient();
   const rangos = [
     { letra: "C", hasta: 17 },

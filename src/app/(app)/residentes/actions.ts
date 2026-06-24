@@ -6,11 +6,21 @@ import { createClient } from "@/lib/supabase/server";
 
 export type ResidenteState = { error?: string; success?: boolean } | null;
 
+async function canManageResidentes() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return Boolean(user) && user?.app_metadata?.rol !== "seguridad";
+}
+
 export async function saveResidente(
   id: string | null,
   _prev: ResidenteState,
   formData: FormData,
 ): Promise<ResidenteState> {
+  if (!(await canManageResidentes())) {
+    return { error: "Seguridad no puede editar residentes" };
+  }
+
   const supabase = await createClient();
   const nombre = (formData.get("nombre") as string)?.trim();
   const apellido = (formData.get("apellido") as string)?.trim();
@@ -40,12 +50,20 @@ export async function saveResidente(
 }
 
 export async function toggleActivoResidente(id: string, activo: boolean, _formData: FormData) {
+  if (!(await canManageResidentes())) {
+    throw new Error("Seguridad no puede editar residentes");
+  }
+
   const supabase = await createClient();
   await supabase.from("residentes").update({ activo: !activo }).eq("id", id);
   revalidatePath("/residentes");
 }
 
 export async function deleteResidente(id: string, profileId: string | null, _formData: FormData) {
+  if (!(await canManageResidentes())) {
+    throw new Error("Seguridad no puede borrar residentes");
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.from("residentes").delete().eq("id", id);
