@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { PaseQR, Residente } from "@/lib/types/database";
+import type { Lote, PaseQR, Residente } from "@/lib/types/database";
 
 interface PaseConResidente extends PaseQR {
-  residente: Residente | null;
+  residente: (Residente & { lote: Lote | null }) | null;
 }
 
 interface Props {
@@ -37,6 +37,16 @@ function autorizadoNombre(pase: PaseConResidente) {
   return pase.visitante_nombre || pase.descripcion?.replace(/^Visita:\s*/i, "") || "-";
 }
 
+function residenteNombre(pase: PaseConResidente) {
+  return pase.residente
+    ? `${pase.residente.apellido}, ${pase.residente.nombre}`
+    : "-";
+}
+
+function destinoIngreso(pase: PaseConResidente) {
+  return pase.residente?.lote ? `Lote ${pase.residente.lote.numero}` : "-";
+}
+
 export default function PasesRegistrados({ pases }: Props) {
   const [seleccionado, setSeleccionado] = useState<PaseConResidente | null>(null);
 
@@ -65,17 +75,15 @@ export default function PasesRegistrados({ pases }: Props) {
                 <div><span>DNI / CUIL</span><strong>{seleccionado.visitante_documento ?? "-"}</strong></div>
                 <div><span>Telefono / WhatsApp</span><strong>{seleccionado.visitante_telefono ?? "-"}</strong></div>
                 <div><span>Motivo</span><strong>{seleccionado.motivo ?? "-"}</strong></div>
+                <div><span>Destino de ingreso</span><strong>{destinoIngreso(seleccionado)}</strong></div>
                 <div>
                   <span>Residente que autorizo</span>
-                  <strong>
-                    {seleccionado.residente
-                      ? `${seleccionado.residente.apellido}, ${seleccionado.residente.nombre}`
-                      : "-"}
-                  </strong>
+                  <strong>{residenteNombre(seleccionado)}</strong>
                 </div>
                 <div><span>Tipo de pase</span><strong>{tipoLabel[seleccionado.tipo] ?? seleccionado.tipo}</strong></div>
                 <div><span>Valido desde</span><strong>{seleccionado.valido_desde ?? "-"}</strong></div>
                 <div><span>Vence</span><strong>{seleccionado.vence_at ? formatTs(seleccionado.vence_at) : "-"}</strong></div>
+                <div><span>Ingreso registrado</span><strong>{seleccionado.usado_at ? formatTs(seleccionado.usado_at) : "-"}</strong></div>
                 <div>
                   <span>Horario</span>
                   <strong>
@@ -103,11 +111,11 @@ export default function PasesRegistrados({ pases }: Props) {
       <div className="card">
         <div className="card-title">Pases registrados</div>
         <div className="table-wrap">
-          <table>
+          <table className="passes-table">
             <thead>
               <tr>
-                <th>Autorizado</th>
-                <th>Residente</th>
+                <th>Ingresa</th>
+                <th>Destino</th>
                 <th>Tipo</th>
                 <th>Estado</th>
                 <th>Vence</th>
@@ -126,13 +134,27 @@ export default function PasesRegistrados({ pases }: Props) {
                 </tr>
               ) : (
                 pases.map((p) => (
-                  <tr key={p.id} style={{ opacity: p.activo ? 1 : 0.5 }}>
+                  <tr
+                    key={p.id}
+                    className="clickable-row pass-row"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSeleccionado(p)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSeleccionado(p);
+                      }
+                    }}
+                    style={{ opacity: p.activo ? 1 : 0.5 }}
+                  >
                     <td>
-                      <button type="button" className="link-button" onClick={() => setSeleccionado(p)}>
-                        {autorizadoNombre(p)}
-                      </button>
+                      <strong>{autorizadoNombre(p)}</strong>
+                      <span className="pass-row-owner">
+                        Propietario: {residenteNombre(p)}
+                      </span>
                     </td>
-                    <td>{p.residente ? `${p.residente.apellido}, ${p.residente.nombre}` : "-"}</td>
+                    <td>{destinoIngreso(p)}</td>
                     <td>
                       <span className={`badge ${tipoBadge[p.tipo] ?? "badge-gray"}`}>
                         {tipoLabel[p.tipo] ?? p.tipo}

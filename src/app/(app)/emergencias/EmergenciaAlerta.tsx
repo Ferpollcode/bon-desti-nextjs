@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import EmergencyAlarm from "./EmergencyAlarm";
 
 interface AlertaActiva {
   descripcion: string;
@@ -10,24 +11,22 @@ interface AlertaActiva {
   residente_nombre: string | null;
 }
 
-function playAlarm() {
-  try {
-    const ctx = new AudioContext();
-    [0, 0.35, 0.7].forEach((t) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sawtooth";
-      osc.frequency.value = 660;
-      gain.gain.setValueAtTime(0.4, ctx.currentTime + t);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.28);
-      osc.start(ctx.currentTime + t);
-      osc.stop(ctx.currentTime + t + 0.28);
-    });
-  } catch {
-    // El browser puede bloquear audio sin interacción previa del usuario
-  }
+function showBrowserNotification(alerta: AlertaActiva) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  const body = [
+    alerta.descripcion,
+    alerta.lote_numero ? `Lote ${alerta.lote_numero}` : null,
+    alerta.residente_nombre ? `Reportado por ${alerta.residente_nombre}` : null,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+
+  new Notification("Emergencia recibida", {
+    body,
+    icon: "/legacy/assets/sirena-emergencia.png",
+    requireInteraction: true,
+  });
 }
 
 export default function EmergenciaAlerta() {
@@ -68,12 +67,14 @@ export default function EmergenciaAlerta() {
           ? `${perfil.nombre ?? ""} ${perfil.apellido ?? ""}`.trim()
           : null;
 
-        setAlerta({
+        const nuevaAlerta = {
           descripcion: emergencia?.descripcion ?? "Emergencia reportada desde el portal",
           lote_numero,
           residente_nombre: nombrePayload ?? nombreDB ?? null,
-        });
-        playAlarm();
+        };
+
+        setAlerta(nuevaAlerta);
+        showBrowserNotification(nuevaAlerta);
       })
       .subscribe();
 
@@ -103,6 +104,10 @@ export default function EmergenciaAlerta() {
           70%  { box-shadow: 0 0 0 24px rgba(239,68,68,0); }
           100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
         }
+        @keyframes em-strobe {
+          0%, 100% { background: rgba(0,0,0,0.88); }
+          50% { background: rgba(127, 0, 0, 0.82); }
+        }
         @keyframes em-in {
           from { opacity: 0; transform: scale(0.93); }
           to   { opacity: 1; transform: scale(1); }
@@ -112,6 +117,7 @@ export default function EmergenciaAlerta() {
       <div
         style={{
           alignItems: "center",
+          animation: "em-strobe 0.65s infinite",
           background: "rgba(0,0,0,0.82)",
           bottom: 0,
           display: "flex",
@@ -129,8 +135,8 @@ export default function EmergenciaAlerta() {
             background: "#1a0505",
             border: "2px solid var(--danger)",
             borderRadius: 16,
-            maxWidth: 420,
-            padding: "36px 28px",
+            maxWidth: 480,
+            padding: "32px 24px",
             textAlign: "center",
             width: "90%",
           }}
@@ -146,14 +152,16 @@ export default function EmergenciaAlerta() {
               fontSize: 20,
               fontWeight: 800,
               letterSpacing: 3,
-              marginBottom: 20,
+              marginBottom: 16,
               textTransform: "uppercase",
             }}
           >
-            EMERGENCIA
+            EMERGENCIA RECIBIDA
           </div>
 
-          <p style={{ color: "#fff", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
+          <EmergencyAlarm active={Boolean(alerta)} />
+
+          <p style={{ color: "#fff", fontSize: 16, fontWeight: 600, margin: "18px 0 8px" }}>
             {alerta.descripcion}
           </p>
 

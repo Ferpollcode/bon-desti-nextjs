@@ -174,6 +174,8 @@ export async function registrarIngresoQR(
         .is("egresado_at", null);
     }
   } else {
+    const ingresoAt = new Date().toISOString();
+
     if (pase.tipo === "temporal" || pase.tipo === "unico_uso") {
       // Crear o reutilizar visitante
       const nombre = (pase as PaseQR).visitante_nombre ?? "Visitante";
@@ -219,7 +221,12 @@ export async function registrarIngresoQR(
       if (pase.tipo === "unico_uso") {
         await supabase
           .from("pases_qr")
-          .update({ activo: false, usado_at: new Date().toISOString() })
+          .update({ activo: false, usado_at: ingresoAt })
+          .eq("id", paseId);
+      } else {
+        await supabase
+          .from("pases_qr")
+          .update({ usado_at: ingresoAt })
           .eq("id", paseId);
       }
     } else {
@@ -230,6 +237,10 @@ export async function registrarIngresoQR(
         registrado_por: user.id,
       });
 
+      await supabase
+        .from("pases_qr")
+        .update({ usado_at: ingresoAt })
+        .eq("id", paseId);
     }
   }
 

@@ -4,6 +4,14 @@ import { formatDateTime, startOfLocalDayIso } from "@/lib/timezone";
 import type { IngresoCompleto, Residente, Lote } from "@/lib/types/database";
 import RegistroIngreso from "./RegistroIngreso";
 import { eliminarIngreso, registrarEgreso } from "./actions";
+import EmergencyAlarm from "../emergencias/EmergencyAlarm";
+
+interface SeguridadEmergenciaActiva {
+  id: string;
+  descripcion: string;
+  created_at: string;
+  lote: { numero: string } | null;
+}
 
 async function getIngresos(): Promise<IngresoCompleto[]> {
   const supabase = await createClient();
@@ -28,6 +36,25 @@ async function getStatsHoy() {
     .gte("ingresado_at", todayStart)
     .is("egresado_at", null);
   return { entradas: entradas ?? 0, dentro: dentro ?? 0 };
+}
+
+async function getEmergenciasActivas(): Promise<SeguridadEmergenciaActiva[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("emergencias")
+    .select("id, descripcion, created_at, lote:lotes(numero)")
+    .eq("estado", "activa")
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  return (data ?? []).map((emergencia) => ({
+    id: emergencia.id,
+    descripcion: emergencia.descripcion,
+    created_at: emergencia.created_at,
+    lote: Array.isArray(emergencia.lote)
+      ? (emergencia.lote[0] ?? null)
+      : (emergencia.lote ?? null),
+  }));
 }
 
 async function getResidentesYLotes(): Promise<{
@@ -81,9 +108,10 @@ const tipoLabel: Record<string, string> = {
 };
 
 export default async function SeguridadPage() {
-  const [ingresos, stats, { residentes, lotes }] = await Promise.all([
+  const [ingresos, stats, emergenciasActivas, { residentes, lotes }] = await Promise.all([
     getIngresos(),
     getStatsHoy(),
+    getEmergenciasActivas(),
     getResidentesYLotes(),
   ]);
 
@@ -106,7 +134,30 @@ export default async function SeguridadPage() {
           <div className="stat-label">Dentro ahora</div>
           <div className="stat-value">{stats.dentro}</div>
         </div>
+        <div className="stat red">
+          <div className="stat-label">Emergencias activas</div>
+          <div className="stat-value">{emergenciasActivas.length}</div>
+        </div>
       </div>
+
+      <EmergencyAlarm active={emergenciasActivas.length > 0} />
+
+      {emergenciasActivas.length > 0 && (
+        <div className="emergency-panel security-emergency-panel">
+          <div className="emergency-title">
+            <i className="ti ti-alert-triangle" /> Emergencia recibida
+          </div>
+          {emergenciasActivas.map((emergencia) => (
+            <div key={emergencia.id} className="security-emergency-item">
+              <strong>{emergencia.descripcion}</strong>
+              {emergencia.lote && <span>Lote {emergencia.lote.numero}</span>}
+              <a className="btn btn-sm btn-danger call-911-link" href="tel:911">
+                <i className="ti ti-phone-call" /> Llamar 911
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="card security-access-card">
         <div className="table-wrap security-access-wrap">

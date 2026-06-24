@@ -1,17 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
-import type { PaseQR, Residente } from "@/lib/types/database";
+import type { Lote, PaseQR, Residente } from "@/lib/types/database";
 import PasesRegistrados from "./PasesRegistrados";
 import QRScanner from "./QRScanner";
 
 interface PaseConResidente extends PaseQR {
-  residente: Residente | null;
+  residente: (Residente & { lote: Lote | null }) | null;
 }
 
 async function getPases(): Promise<PaseConResidente[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("pases_qr")
-    .select("*, residente:residentes(*)")
+    .select("*, residente:residentes(*, lote:lotes(*))")
     .order("created_at", { ascending: false });
   return (data ?? []) as PaseConResidente[];
 }
