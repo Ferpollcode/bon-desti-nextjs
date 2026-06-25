@@ -5,7 +5,7 @@ const out = path.join(__dirname, "propuesta_bon_desti_final.pdf");
 
 const W = 595.28;
 const H = 841.89;
-const M = 60;
+const M = 50;
 const CW = W - M * 2;
 
 const colors = {
@@ -80,55 +80,55 @@ function pageBase() {
 
 function header() {
   rect(0, H - 112, W, 112, colors.navy);
-  centerText("BON DESTI", H - 54, 28, colors.white, "F2", 0, W);
-  centerText("COMPLEJO RESIDENCIAL", H - 78, 8.5, [171, 184, 199], "F2", 0, W);
+  centerText("BON DESTI", H - 53, 31, colors.white, "F2", 0, W);
+  centerText("COMPLEJO RESIDENCIAL", H - 80, 10, [171, 184, 199], "F2", 0, W);
 }
 
 function sectionTitle(n, title, y) {
-  centerText(`${n}. ${title}`, y, 11, colors.ink, "F2");
-  return y - 28;
+  centerText(`${n}. ${title}`, y, 12.5, colors.ink, "F2");
+  return y - 31;
 }
 
 function footer() {
-  centerText("BON DESTI ACCESS - Propuesta Comercial", 31, 6.5, [180, 190, 204], "F1", 0, W);
+  centerText("BON DESTI ACCESS - Propuesta Comercial", 31, 7.2, [180, 190, 204], "F1", 0, W);
 }
 
 function bullet(label, body, y) {
-  text("-", M + 3, y, 8.5, colors.ink, "F2");
-  text(`${label}:`, M + 14, y, 8.3, colors.ink, "F2");
-  const labelW = label.length * 8.3 * 0.5 + 7;
-  const lines = wrap(body, 104);
-  text(lines[0], M + 14 + labelW, y, 8.3, colors.text);
-  let yy = y - 13;
+  text("-", M + 3, y, 9.7, colors.ink, "F2");
+  text(`${label}:`, M + 16, y, 9.4, colors.ink, "F2");
+  const labelW = label.length * 9.4 * 0.5 + 8;
+  const lines = wrap(body, 92);
+  text(lines[0], M + 16 + labelW, y, 9.4, colors.text);
+  let yy = y - 15;
   for (const l of lines.slice(1)) {
-    text(l, M + 14, yy, 8.3, colors.text);
-    yy -= 13;
+    text(l, M + 16, yy, 9.4, colors.text);
+    yy -= 15;
   }
-  return yy - 5;
+  return yy - 6;
 }
 
 function tableHeader(y) {
-  rect(M, y - 25, CW, 25, colors.navy);
-  text("Concepto", M + 12, y - 16, 7.5, colors.white, "F2");
-  text("Detalle Operativo", M + 112, y - 16, 7.5, colors.white, "F2");
-  rightText("Inversion", W - M - 12, y - 16, 7.5, colors.white, "F2");
-  return y - 25;
+  rect(M, y - 29, CW, 29, colors.navy);
+  text("Concepto", M + 12, y - 18, 8.6, colors.white, "F2");
+  text("Detalle Operativo", M + 122, y - 18, 8.6, colors.white, "F2");
+  rightText("Inversion", W - M - 12, y - 18, 8.6, colors.white, "F2");
+  return y - 29;
 }
 
-function tableRow(y, concepto, detalle, importe, h = 48) {
+function tableRow(y, concepto, detalle, importe, h = 56) {
   rect(M, y - h, CW, h, colors.white, colors.line);
-  text(concepto, M + 12, y - 18, 7.5, colors.ink, "F2");
-  wrap(detalle, 70).slice(0, 2).forEach((l, i) => {
-    text(l, M + 112, y - 18 - i * 11, 7.4, colors.text);
+  text(concepto, M + 12, y - 21, 8.5, colors.ink, "F2");
+  wrap(detalle, 64).slice(0, 2).forEach((l, i) => {
+    text(l, M + 122, y - 21 - i * 13, 8.3, colors.text);
   });
-  rightText(importe, W - M - 12, y - 18, 7.5, colors.ink, "F2");
+  rightText(importe, W - M - 12, y - 21, 8.5, colors.ink, "F2");
   return y - h;
 }
 
 function paymentBox(x, y, title, amount) {
-  rect(x, y - 62, 132, 62, colors.panel, colors.line);
-  centerText(title, y - 22, 6.7, colors.muted, "F2", x, 132);
-  centerText(amount, y - 44, 11, colors.ink, "F2", x, 132);
+  rect(x, y - 68, 145, 68, colors.panel, colors.line);
+  centerText(title, y - 24, 7.4, colors.muted, "F2", x, 145);
+  centerText(amount, y - 48, 12.2, colors.ink, "F2", x, 145);
 }
 
 function writePageOne() {
@@ -136,25 +136,25 @@ function writePageOne() {
   header();
 
   let y = H - 148;
-  centerText("PROPUESTA COMERCIAL ACCESS", y, 12, colors.ink, "F2");
-  y -= 27;
+  centerText("PROPUESTA COMERCIAL ACCESS", y, 13.5, colors.ink, "F2");
+  y -= 29;
   centerText(
     "PREPARADO PARA: BON DESTI COMPLEJO RESIDENCIAL  |  FECHA: 24/06/2026  |  VALIDEZ: 15 DIAS",
     y,
-    6.5,
+    7.3,
     colors.muted,
     "F2",
   );
-  y -= 39;
+  y -= 42;
   centerText(
     "Optimizacion tecnologica para la gestion de accesos y seguridad integral en entornos residenciales de",
     y,
-    7.3,
+    8.4,
     colors.text,
   );
-  centerText("categoria.", y - 12, 7.3, colors.text);
+  centerText("categoria.", y - 14, 8.4, colors.text);
 
-  y -= 55;
+  y -= 58;
   y = sectionTitle("01", "Alcance Tecnico", y);
   y = bullet("Sistema Central", "Gestion de residentes, unidades funcionales y personal operativo.", y);
   y = bullet("Accesos Inteligentes", "Generacion de invitaciones mediante codigos QR de uso unico o temporal.", y);
@@ -162,7 +162,7 @@ function writePageOne() {
   y = bullet("Emergencias", "Modulo de alerta sonora y visual con protocolo y seguimiento de incidentes.", y);
   y = bullet("Capacitacion", "Formacion profesional integral para el personal operativo y la administracion.", y);
 
-  y -= 18;
+  y -= 20;
   y = sectionTitle("02", "Inversion del Proyecto", y);
   y = tableHeader(y);
   y = tableRow(y, "Desarrollo Web", "Arquitectura, interfaz de usuario y portal de residentes.", "ARS 1.440.000");
@@ -181,40 +181,40 @@ function writePageTwo() {
   y = tableHeader(y);
   y = tableRow(y, "Capacitacion", "Entrenamiento tecnico al personal de seguridad y referentes.", "ARS 135.000");
 
-  rect(M, y - 40, CW, 40, colors.white, colors.line);
-  text("INVERSION TOTAL INICIAL", M + 12, y - 25, 8.5, colors.ink, "F2");
-  rightText("ARS 2.160.000", W - M - 12, y - 25, 8.8, colors.ink, "F2");
-  y -= 78;
+  rect(M, y - 46, CW, 46, colors.white, colors.line);
+  text("INVERSION TOTAL INICIAL", M + 12, y - 29, 9.6, colors.ink, "F2");
+  rightText("ARS 2.160.000", W - M - 12, y - 29, 10, colors.ink, "F2");
+  y -= 84;
 
-  centerText("Forma de pago: La inversion inicial puede abonarse en 3 pagos mensuales consecutivos. El acceso se", y, 6.9, colors.text);
-  centerText("habilita con el primer pago.", y - 11, 6.9, colors.text);
-  y -= 39;
+  centerText("Forma de pago: La inversion inicial puede abonarse en 3 pagos mensuales consecutivos. El acceso se", y, 7.9, colors.text);
+  centerText("habilita con el primer pago.", y - 13, 7.9, colors.text);
+  y -= 42;
 
-  paymentBox(M + 9, y, "PAGO 1 - INICIO", "ARS 720.000");
-  paymentBox(M + 171, y, "PAGO 2 - MES 2", "ARS 720.000");
-  paymentBox(M + 333, y, "PAGO 3 - MES 3", "ARS 720.000");
+  paymentBox(M, y, "PAGO 1 - INICIO", "ARS 720.000");
+  paymentBox(M + 175, y, "PAGO 2 - MES 2", "ARS 720.000");
+  paymentBox(M + 350, y, "PAGO 3 - MES 3", "ARS 720.000");
 
-  y -= 96;
+  y -= 104;
   y = sectionTitle("03", "Mantenimiento y Soporte", y);
-  rect(M, y - 74, CW, 74, colors.panel, colors.line);
-  centerText("Abono Mensual: ARS 112.500", y - 28, 11, colors.ink, "F2");
+  rect(M, y - 84, CW, 84, colors.panel, colors.line);
+  centerText("Abono Mensual: ARS 112.500", y - 31, 12.4, colors.ink, "F2");
   centerText(
     "Garantia de continuidad operativa, soporte por canales digitales en horario laboral, actualizaciones",
-    y - 49,
-    7,
+    y - 56,
+    8,
     colors.text,
   );
-  centerText("de seguridad y mejoras menores. Hasta 5 horas mensuales incluidas.", y - 61, 7, colors.text);
+  centerText("de seguridad y mejoras menores. Hasta 5 horas mensuales incluidas.", y - 70, 8, colors.text);
 
-  y -= 120;
+  y -= 132;
   y = sectionTitle("04", "Terminos Generales", y);
   centerText(
     "La propiedad de la informacion cargada pertenece exclusivamente al cliente. Desarrollos adicionales o hardware",
     y,
-    6.4,
+    7.3,
     colors.muted,
   );
-  centerText("externo se cotizan por separado. Alcance final sujeto a relevamiento tecnico formal.", y - 11, 6.4, colors.muted);
+  centerText("externo se cotizan por separado. Alcance final sujeto a relevamiento tecnico formal.", y - 13, 7.3, colors.muted);
 
   pages.push(ops.join("\n"));
   ops = [];
