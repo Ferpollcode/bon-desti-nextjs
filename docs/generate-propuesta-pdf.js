@@ -2,6 +2,9 @@ const fs = require("fs");
 const path = require("path");
 
 const out = path.join(__dirname, "propuesta_bon_desti_final.pdf");
+const headerImagePath = path.join(__dirname, "ferpoll-code-header.jpeg");
+const headerImage = fs.readFileSync(headerImagePath);
+const headerImageSize = jpegSize(headerImage);
 
 const W = 595.28;
 const H = 841.89;
@@ -20,6 +23,23 @@ const colors = {
 
 let pages = [];
 let ops = [];
+
+function jpegSize(buffer) {
+  let i = 2;
+  while (i < buffer.length) {
+    if (buffer[i] !== 0xff) break;
+    const marker = buffer[i + 1];
+    const length = buffer.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xc3) {
+      return {
+        height: buffer.readUInt16BE(i + 5),
+        width: buffer.readUInt16BE(i + 7),
+      };
+    }
+    i += 2 + length;
+  }
+  throw new Error("No se pudo leer el tamano del encabezado JPEG.");
+}
 
 function rgb(c) {
   return `${(c[0] / 255).toFixed(3)} ${(c[1] / 255).toFixed(3)} ${(c[2] / 255).toFixed(3)}`;
@@ -79,9 +99,10 @@ function pageBase() {
 }
 
 function header() {
-  rect(0, H - 112, W, 112, colors.navy);
-  centerText("BON DESTI", H - 53, 31, colors.white, "F2", 0, W);
-  centerText("COMPLEJO RESIDENCIAL", H - 80, 10, [171, 184, 199], "F2", 0, W);
+  const headerH = 130;
+  const imageH = W * (headerImageSize.height / headerImageSize.width);
+  const imageY = H - headerH - (imageH - headerH) / 2;
+  add(`q 0 ${H - headerH} ${W} ${headerH} re W n ${W.toFixed(2)} 0 0 ${imageH.toFixed(2)} 0 ${imageY.toFixed(2)} cm /Im1 Do Q`);
 }
 
 function sectionTitle(n, title, y) {
@@ -135,7 +156,7 @@ function writePageOne() {
   pageBase();
   header();
 
-  let y = H - 148;
+  let y = H - 166;
   centerText("PROPUESTA COMERCIAL ACCESS", y, 13.5, colors.ink, "F2");
   y -= 29;
   centerText(
@@ -231,12 +252,13 @@ function obj(v) {
 
 const f1 = obj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
 const f2 = obj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+const imageRef = obj(`<< /Type /XObject /Subtype /Image /Width ${headerImageSize.width} /Height ${headerImageSize.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${headerImage.length} >>\nstream\n${headerImage.toString("latin1")}\nendstream`);
 const pageRefs = [];
 
 pages.forEach((content) => {
   const stream = `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`;
   const cRef = obj(stream);
-  const pRef = obj(`<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${cRef} 0 R >>`);
+  const pRef = obj(`<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> /XObject << /Im1 ${imageRef} 0 R >> >> /Contents ${cRef} 0 R >>`);
   pageRefs.push(pRef);
 });
 
