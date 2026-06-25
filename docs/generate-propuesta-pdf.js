@@ -8,20 +8,20 @@ const headerImageSize = jpegSize(headerImage);
 
 const W = 595.28;
 const H = 841.89;
-const M = 50;
+const M = 42;
 const CW = W - M * 2;
 
 const colors = {
   navy: [9, 27, 45],
-  ink: [16, 31, 50],
-  text: [47, 61, 82],
-  muted: [119, 132, 151],
-  line: [219, 226, 235],
-  panel: [245, 248, 252],
+  cyan: [24, 177, 212],
+  ink: [18, 32, 50],
+  text: [55, 68, 88],
+  muted: [116, 129, 146],
+  line: [218, 226, 236],
+  panel: [246, 249, 252],
   white: [255, 255, 255],
 };
 
-let pages = [];
 let ops = [];
 
 function jpegSize(buffer) {
@@ -59,22 +59,20 @@ function rect(x, y, w, h, fill = null, stroke = null, lw = 1) {
   add(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re ${fill && stroke ? "B" : fill ? "f" : "S"}`);
 }
 
-function line(x1, y1, x2, y2, color = colors.line, lw = 1) {
-  add(`${rgb(color)} RG ${lw} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
-}
-
-function text(s, x, y, size = 10, color = colors.text, font = "F1") {
+function text(s, x, y, size = 9, color = colors.text, font = "F1") {
   add(`BT /${font} ${size} Tf ${rgb(color)} rg ${x.toFixed(2)} ${y.toFixed(2)} Td (${esc(s)}) Tj ET`);
 }
 
-function centerText(s, y, size = 10, color = colors.text, font = "F1", x = M, width = CW) {
-  const approx = String(s).length * size * 0.48;
-  text(s, x + (width - approx) / 2, y, size, color, font);
+function approxWidth(s, size) {
+  return String(s).length * size * 0.48;
 }
 
-function rightText(s, xRight, y, size = 10, color = colors.text, font = "F1") {
-  const approx = String(s).length * size * 0.48;
-  text(s, xRight - approx, y, size, color, font);
+function centerText(s, y, size = 9, color = colors.text, font = "F1", x = M, width = CW) {
+  text(s, x + (width - approxWidth(s, size)) / 2, y, size, color, font);
+}
+
+function rightText(s, xRight, y, size = 9, color = colors.text, font = "F1") {
+  text(s, xRight - approxWidth(s, size), y, size, color, font);
 }
 
 function wrap(s, maxChars) {
@@ -94,155 +92,118 @@ function wrap(s, maxChars) {
   return lines;
 }
 
-function pageBase() {
-  rect(0, 0, W, H, colors.white);
+function image(x, y, w, h) {
+  add(`q ${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im1 Do Q`);
 }
 
-function header() {
-  const headerH = 130;
-  const imageH = W * (headerImageSize.height / headerImageSize.width);
-  const imageY = H - headerH - (imageH - headerH) / 2;
-  add(`q 0 ${H - headerH} ${W} ${headerH} re W n ${W.toFixed(2)} 0 0 ${imageH.toFixed(2)} 0 ${imageY.toFixed(2)} cm /Im1 Do Q`);
-}
-
-function sectionTitle(n, title, y) {
-  centerText(`${n}. ${title}`, y, 12.5, colors.ink, "F2");
-  return y - 31;
-}
-
-function footer() {
-  centerText("BON DESTI ACCESS - Propuesta Comercial", 31, 7.2, [180, 190, 204], "F1", 0, W);
+function section(title, y) {
+  text(title, M, y, 10.2, colors.ink, "F2");
+  rect(M, y - 9, CW, 1.1, colors.cyan);
+  return y - 22;
 }
 
 function bullet(label, body, y) {
-  text("-", M + 3, y, 9.7, colors.ink, "F2");
-  text(`${label}:`, M + 16, y, 9.4, colors.ink, "F2");
-  const labelW = label.length * 9.4 * 0.5 + 8;
-  const lines = wrap(body, 92);
-  text(lines[0], M + 16 + labelW, y, 9.4, colors.text);
-  let yy = y - 15;
-  for (const l of lines.slice(1)) {
-    text(l, M + 16, yy, 9.4, colors.text);
-    yy -= 15;
+  text("-", M + 2, y, 8.2, colors.cyan, "F2");
+  text(`${label}:`, M + 13, y, 7.9, colors.ink, "F2");
+  const startX = M + 13 + approxWidth(`${label}:`, 7.9) + 5;
+  const lines = wrap(body, 88);
+  text(lines[0], startX, y, 7.9, colors.text);
+  let yy = y - 11;
+  for (const line of lines.slice(1)) {
+    text(line, M + 13, yy, 7.9, colors.text);
+    yy -= 11;
   }
-  return yy - 6;
+  return yy - 2;
 }
 
 function tableHeader(y) {
-  rect(M, y - 29, CW, 29, colors.navy);
-  text("Concepto", M + 12, y - 18, 8.6, colors.white, "F2");
-  text("Detalle Operativo", M + 122, y - 18, 8.6, colors.white, "F2");
-  rightText("Inversion", W - M - 12, y - 18, 8.6, colors.white, "F2");
-  return y - 29;
+  rect(M, y - 22, CW, 22, colors.navy);
+  text("Concepto", M + 8, y - 14, 7.3, colors.white, "F2");
+  text("Detalle operativo", M + 116, y - 14, 7.3, colors.white, "F2");
+  rightText("Inversion", W - M - 8, y - 14, 7.3, colors.white, "F2");
+  return y - 22;
 }
 
-function tableRow(y, concepto, detalle, importe, h = 56) {
+function tableRow(y, concepto, detalle, importe) {
+  const h = 36;
   rect(M, y - h, CW, h, colors.white, colors.line);
-  text(concepto, M + 12, y - 21, 8.5, colors.ink, "F2");
-  wrap(detalle, 64).slice(0, 2).forEach((l, i) => {
-    text(l, M + 122, y - 21 - i * 13, 8.3, colors.text);
+  text(concepto, M + 8, y - 14, 7.4, colors.ink, "F2");
+  wrap(detalle, 72).slice(0, 2).forEach((line, i) => {
+    text(line, M + 116, y - 14 - i * 10, 7.2, colors.text);
   });
-  rightText(importe, W - M - 12, y - 21, 8.5, colors.ink, "F2");
+  rightText(importe, W - M - 8, y - 14, 7.4, colors.ink, "F2");
   return y - h;
 }
 
-function paymentBox(x, y, title, amount) {
-  rect(x, y - 68, 145, 68, colors.panel, colors.line);
-  centerText(title, y - 24, 7.4, colors.muted, "F2", x, 145);
-  centerText(amount, y - 48, 12.2, colors.ink, "F2", x, 145);
+function paymentCell(x, y, title, amount) {
+  const w = 76;
+  const h = 42;
+  rect(x, y - h, w, h, colors.panel, colors.line);
+  centerText(title, y - 15, 6.2, colors.muted, "F2", x, w);
+  centerText(amount, y - 31, 8, colors.ink, "F2", x, w);
 }
 
-function writePageOne() {
-  pageBase();
-  header();
+function writePdfContent() {
+  rect(0, 0, W, H, colors.white);
 
-  let y = H - 166;
-  centerText("PROPUESTA COMERCIAL ACCESS", y, 13.5, colors.ink, "F2");
+  const logoW = 330;
+  const logoH = logoW * (headerImageSize.height / headerImageSize.width);
+  image((W - logoW) / 2, H - 178, logoW, logoH);
+
+  let y = H - 205;
+  centerText("PROPUESTA COMERCIAL ACCESS", y, 12, colors.ink, "F2");
+  y -= 19;
+  centerText("Preparado para: Bon Desti Complejo Residencial | Fecha: 24/06/2026 | Validez: 15 dias", y, 7.4, colors.muted, "F2");
+  y -= 21;
+  centerText("Optimizacion tecnologica para la gestion de accesos y seguridad integral en entornos residenciales.", y, 8, colors.text);
+
   y -= 29;
-  centerText(
-    "PREPARADO PARA: BON DESTI COMPLEJO RESIDENCIAL  |  FECHA: 24/06/2026  |  VALIDEZ: 15 DIAS",
-    y,
-    7.3,
-    colors.muted,
-    "F2",
-  );
-  y -= 42;
-  centerText(
-    "Optimizacion tecnologica para la gestion de accesos y seguridad integral en entornos residenciales de",
-    y,
-    8.4,
-    colors.text,
-  );
-  centerText("categoria.", y - 14, 8.4, colors.text);
+  y = section("01. Alcance Tecnico", y);
+  y = bullet("Sistema central", "Gestion de residentes, unidades funcionales y personal operativo.", y);
+  y = bullet("Accesos inteligentes", "Invitaciones mediante codigos QR de uso unico o temporal.", y);
+  y = bullet("Seguridad operativa", "Panel de guardia con registro en tiempo real de ingresos y egresos.", y);
+  y = bullet("Emergencias", "Modulo de alerta sonora y visual con seguimiento de incidentes.", y);
+  y = bullet("Capacitacion", "Formacion integral para seguridad, administracion y referentes.", y);
 
-  y -= 58;
-  y = sectionTitle("01", "Alcance Tecnico", y);
-  y = bullet("Sistema Central", "Gestion de residentes, unidades funcionales y personal operativo.", y);
-  y = bullet("Accesos Inteligentes", "Generacion de invitaciones mediante codigos QR de uso unico o temporal.", y);
-  y = bullet("Seguridad Operativa", "Panel de control para guardia con registro en tiempo real de ingresos y egresos.", y);
-  y = bullet("Emergencias", "Modulo de alerta sonora y visual con protocolo y seguimiento de incidentes.", y);
-  y = bullet("Capacitacion", "Formacion profesional integral para el personal operativo y la administracion.", y);
-
-  y -= 20;
-  y = sectionTitle("02", "Inversion del Proyecto", y);
+  y -= 9;
+  y = section("02. Inversion del Proyecto", y);
   y = tableHeader(y);
-  y = tableRow(y, "Desarrollo Web", "Arquitectura, interfaz de usuario y portal de residentes.", "ARS 1.440.000");
+  y = tableRow(y, "Desarrollo Web", "Arquitectura, interfaz, roles, flujos de seguridad y portal de residentes.", "ARS 1.440.000");
   y = tableRow(y, "Implementacion", "Despliegue cloud, configuracion de base de datos y puesta en marcha.", "ARS 405.000");
-  tableRow(y, "Setup Inicial", "Carga de datos base, usuarios y parametrizacion de lotes.", "ARS 180.000");
-
-  footer();
-  pages.push(ops.join("\n"));
-  ops = [];
-}
-
-function writePageTwo() {
-  pageBase();
-
-  let y = H - 70;
-  y = tableHeader(y);
+  y = tableRow(y, "Setup Inicial", "Carga de datos base, usuarios y parametrizacion de lotes.", "ARS 180.000");
   y = tableRow(y, "Capacitacion", "Entrenamiento tecnico al personal de seguridad y referentes.", "ARS 135.000");
 
-  rect(M, y - 46, CW, 46, colors.white, colors.line);
-  text("INVERSION TOTAL INICIAL", M + 12, y - 29, 9.6, colors.ink, "F2");
-  rightText("ARS 2.160.000", W - M - 12, y - 29, 10, colors.ink, "F2");
-  y -= 84;
+  rect(M, y - 28, CW, 28, colors.panel, colors.line);
+  text("INVERSION TOTAL INICIAL", M + 10, y - 18, 8.2, colors.ink, "F2");
+  rightText("ARS 2.160.000", W - M - 10, y - 18, 8.6, colors.ink, "F2");
+  y -= 49;
 
-  centerText("Forma de pago: La inversion inicial puede abonarse en 3 pagos mensuales consecutivos. El acceso se", y, 7.9, colors.text);
-  centerText("habilita con el primer pago.", y - 13, 7.9, colors.text);
-  y -= 42;
+  y = section("03. Forma de Pago", y);
+  text("La inversion inicial se abona en 6 cuotas mensuales consecutivas. El acceso operativo queda habilitado con la primera cuota.", M, y, 7.7, colors.text);
+  y -= 15;
+  const gap = 11;
+  const x0 = M;
+  for (let i = 0; i < 6; i++) {
+    paymentCell(x0 + i * (76 + gap), y, `CUOTA ${i + 1}`, "ARS 360.000");
+  }
+  y -= 62;
 
-  paymentBox(M, y, "PAGO 1 - INICIO", "ARS 720.000");
-  paymentBox(M + 175, y, "PAGO 2 - MES 2", "ARS 720.000");
-  paymentBox(M + 350, y, "PAGO 3 - MES 3", "ARS 720.000");
+  y = section("04. Mantenimiento y Soporte", y);
+  rect(M, y - 48, CW, 48, colors.panel, colors.line);
+  centerText("Abono mensual: ARS 112.500", y - 18, 10.2, colors.ink, "F2");
+  centerText("Continuidad operativa, soporte digital en horario laboral, actualizaciones de seguridad y mejoras menores.", y - 34, 7.4, colors.text);
+  centerText("Incluye hasta 5 horas mensuales.", y - 44, 7.4, colors.text);
+  y -= 70;
 
-  y -= 104;
-  y = sectionTitle("03", "Mantenimiento y Soporte", y);
-  rect(M, y - 84, CW, 84, colors.panel, colors.line);
-  centerText("Abono Mensual: ARS 112.500", y - 31, 12.4, colors.ink, "F2");
-  centerText(
-    "Garantia de continuidad operativa, soporte por canales digitales en horario laboral, actualizaciones",
-    y - 56,
-    8,
-    colors.text,
-  );
-  centerText("de seguridad y mejoras menores. Hasta 5 horas mensuales incluidas.", y - 70, 8, colors.text);
+  y = section("05. Terminos Generales", y);
+  text("La propiedad de la informacion cargada pertenece exclusivamente al cliente. Desarrollos adicionales,", M, y, 7.1, colors.muted);
+  text("hardware externo o integraciones no previstas se cotizan por separado. Alcance final sujeto a relevamiento tecnico formal.", M, y - 10, 7.1, colors.muted);
 
-  y -= 132;
-  y = sectionTitle("04", "Terminos Generales", y);
-  centerText(
-    "La propiedad de la informacion cargada pertenece exclusivamente al cliente. Desarrollos adicionales o hardware",
-    y,
-    7.3,
-    colors.muted,
-  );
-  centerText("externo se cotizan por separado. Alcance final sujeto a relevamiento tecnico formal.", y - 13, 7.3, colors.muted);
-
-  pages.push(ops.join("\n"));
-  ops = [];
+  centerText("BON DESTI ACCESS - Propuesta Comercial", 24, 6.8, [180, 190, 204], "F1", 0, W);
 }
 
-writePageOne();
-writePageTwo();
+writePdfContent();
+const content = ops.join("\n");
 
 const objects = [];
 function obj(v) {
@@ -253,19 +214,10 @@ function obj(v) {
 const f1 = obj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
 const f2 = obj("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
 const imageRef = obj(`<< /Type /XObject /Subtype /Image /Width ${headerImageSize.width} /Height ${headerImageSize.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${headerImage.length} >>\nstream\n${headerImage.toString("latin1")}\nendstream`);
-const pageRefs = [];
-
-pages.forEach((content) => {
-  const stream = `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`;
-  const cRef = obj(stream);
-  const pRef = obj(`<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> /XObject << /Im1 ${imageRef} 0 R >> >> /Contents ${cRef} 0 R >>`);
-  pageRefs.push(pRef);
-});
-
-const pagesRef = obj(`<< /Type /Pages /Kids [${pageRefs.map((r) => `${r} 0 R`).join(" ")}] /Count ${pageRefs.length} >>`);
-pageRefs.forEach((r) => {
-  objects[r - 1] = objects[r - 1].replace("/Parent 0 0 R", `/Parent ${pagesRef} 0 R`);
-});
+const contentRef = obj(`<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}\nendstream`);
+const pageRef = obj(`<< /Type /Page /Parent 0 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> /XObject << /Im1 ${imageRef} 0 R >> >> /Contents ${contentRef} 0 R >>`);
+const pagesRef = obj(`<< /Type /Pages /Kids [${pageRef} 0 R] /Count 1 >>`);
+objects[pageRef - 1] = objects[pageRef - 1].replace("/Parent 0 0 R", `/Parent ${pagesRef} 0 R`);
 const catalogRef = obj(`<< /Type /Catalog /Pages ${pagesRef} 0 R >>`);
 
 let pdf = "%PDF-1.4\n";
