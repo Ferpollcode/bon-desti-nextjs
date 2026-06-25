@@ -105,7 +105,7 @@ function section(title, y) {
 function bullet(label, body, y) {
   text("-", M + 2, y, 8.2, colors.cyan, "F2");
   text(`${label}:`, M + 13, y, 7.9, colors.ink, "F2");
-  const startX = M + 13 + approxWidth(`${label}:`, 7.9) + 5;
+  const startX = M + 13 + approxWidth(`${label}: `, 7.9) + 5;
   const lines = wrap(body, 88);
   text(lines[0], startX, y, 7.9, colors.text);
   let yy = y - 11;
