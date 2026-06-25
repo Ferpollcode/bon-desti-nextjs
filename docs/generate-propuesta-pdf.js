@@ -146,16 +146,16 @@ function paymentCell(x, y, title, amount) {
 function writePdfContent() {
   rect(0, 0, W, H, colors.white);
 
-  const logoW = 330;
+  const logoW = 285;
   const logoH = logoW * (headerImageSize.height / headerImageSize.width);
-  image((W - logoW) / 2, H - 178, logoW, logoH);
+  image((W - logoW) / 2, H - 160, logoW, logoH);
 
-  let y = H - 205;
-  centerText("PROPUESTA COMERCIAL ACCESS", y, 12, colors.ink, "F2");
+  let y = H - 196;
+  text("PROPUESTA COMERCIAL ACCESS", M, y, 12, colors.ink, "F2");
   y -= 19;
-  centerText("Preparado para: Bon Desti Complejo Residencial | Fecha: 24/06/2026 | Validez: 15 dias", y, 7.4, colors.muted, "F2");
+  text("Preparado para: Bon Desti Complejo Residencial | Fecha: 24/06/2026 | Validez: 15 dias", M, y, 7.4, colors.muted, "F2");
   y -= 21;
-  centerText("Optimizacion tecnologica para la gestion de accesos y seguridad integral en entornos residenciales.", y, 8, colors.text);
+  text("Optimizacion tecnologica para la gestion de accesos y seguridad integral en entornos residenciales.", M, y, 8, colors.text);
 
   y -= 29;
   y = section("01. Alcance Tecnico", y);
