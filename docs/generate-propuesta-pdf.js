@@ -272,7 +272,7 @@ y -= 10;
 line(M, y, W - M, y, colors.green, 3);
 y -= 26;
 metaCards([
-  ["Preparado para", "Cliente potencial"],
+  ["Preparado para", "Bon Desti Complejo Residencial"],
   ["Fecha", "24/06/2026"],
   ["Validez", "15 dias corridos"],
 ]);
