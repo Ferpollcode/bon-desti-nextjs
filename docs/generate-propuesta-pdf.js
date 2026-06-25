@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const out = path.join(__dirname, "propuesta-comercial-bon-desti.pdf");
+const out = path.join(__dirname, "propuesta_bon_desti_final.pdf");
 
 const W = 595.28;
 const H = 841.89;
@@ -197,8 +197,7 @@ function priceTable(rows, total) {
   }
 
   rect(M, y - 34, CW, 34, colors.green, colors.green);
-  text("Total inversion inicial", M + 8, y - 21, 11, colors.white, "F2");
-  text(total, W - M - 116, y - 21, 11, colors.white, "F2");
+  text(`Inversion total inicial - ${total}`, M + 8, y - 21, 11, colors.white, "F2");
   y -= 48;
 }
 
